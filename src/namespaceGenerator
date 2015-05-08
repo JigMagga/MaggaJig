@@ -77,7 +77,8 @@ function create(JigName, staticMethods, prototypeMethods) {
 
     //default Object to be merged at instantiation
     namespace.default = {};
-
+    
+    return namespace;
 
 }
 
