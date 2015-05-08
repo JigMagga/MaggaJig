@@ -1,0 +1,51 @@
+{
+  "name": "MaggaJig",
+  "version": "1.0.0",
+  "description": "A Jig is a container for building components",
+  "main": "main.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/JigMagga/MaggaJig.git"
+  },
+  "keywords": [
+    "JigMagga",
+    "microservices",
+    "container",
+    "isomorph"
+  ],
+  "author": {
+    "name": "yd. yourdelivery GmbH",
+    "web": "http://www.lieferando.de/"
+  },
+  "contributors": [
+    {
+      "name": "Luisa Castano",
+      "email": "luisa.castano@takeaway.com"
+    },
+    {
+      "name": "Jaroslav Popov",
+      "email": "jaroslav.popov@takeaway.com",
+      "url": "https://github.com/chilicoder"
+    },
+    {
+      "name": "Akrem Abayed",
+      "email": "akrem.abayed@takeaway.com"
+    },
+        {
+      "name": "Toni Meuschke",
+      "email": "meuschke@takeaway.com",
+      "url": "https://github.com/meuschke"
+    }
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/JigMagga/MaggaJig/issues"
+  },
+  "homepage": "https://github.com/JigMagga/MaggaJig"
+}
