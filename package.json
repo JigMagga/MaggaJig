@@ -2,7 +2,7 @@
   "name": "MaggaJig",
   "version": "1.0.0",
   "description": "A Jig is a container for building components",
-  "main": "main.js",
+  "main": "src/main.js",
   "directories": {
     "test": "test"
   },
