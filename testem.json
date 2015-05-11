@@ -1,5 +1,6 @@
 {
   "framework": "mocha",
+  "serve_files": [ "test/browserified.js" ],
   "src_files": [
     "src/*",
     "test/setup.js",
@@ -11,7 +12,10 @@
       "protocol": "tap"
     }
   },
+  "before_tests": "./node_modules/.bin/browserify test/tests.js -o test/browserified.js",
+  "on_exit": "rm test/browserified.js",
   "launch_in_dev": [
-    "node"
+    "node",
+    "chrome"
   ]
 }
