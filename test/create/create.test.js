@@ -1,7 +1,6 @@
-
 describe('jig create test', function () {
   //TODO we should use a other way 
-  var Jig = require("./../../src/jig.js");
+  var Jig = require("jig.js");
 
   // // Before Hooks
   // before(function (done) {

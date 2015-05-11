@@ -8,11 +8,11 @@
   ],
   "launchers": {
     "node": {
-      "command": "./node_modules/.bin/mocha -r test/setup.js -R tap test/**/*.test.js",
+      "command": "NODE_PATH=./src ./node_modules/.bin/mocha -r test/setup.js -R tap test/**/*.test.js",
       "protocol": "tap"
     }
   },
-  "before_tests": "./node_modules/.bin/browserify test/tests.js -o test/browserified.js",
+  "before_tests": "NODE_PATH=./src ./node_modules/.bin/browserify test/tests.js -o test/browserified.js",
   "on_exit": "rm test/browserified.js",
   "launch_in_dev": [
     "node",
