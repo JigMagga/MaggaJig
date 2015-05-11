@@ -1,5 +1,5 @@
 /**
- * Created by lfcj on 08.05.15.
+ * Created by lfcj on May,2015
  */
 /*
 
@@ -42,13 +42,13 @@ function create(JigName, staticMethods, prototypeMethods) {
 
     var namespace_andJigName = JigName.split(".");
     var stringsInJigName = namespace_andJigName.length;
-    var actualJigName;
+    var actualJigName, namespace;
     switch (stringsInJigName) {
         case 1: //only name of Jig
             actualJigName = namespace_andJigName[0];
             break;
         case 2: //both namespace and name of Jig
-            var namespace = namespace_andJigName[0];
+            namespace = namespace_andJigName[0];
             actualJigName = namespace_andJigName[1];
             break;
         default://no namespace or name of Jig
@@ -56,7 +56,7 @@ function create(JigName, staticMethods, prototypeMethods) {
     }
 
     /*If the namespace does not exist, create it and assign actualJigName to it.*/
-    if (typeof namespace == 'undefined') {
+    if (typeof namespace === 'undefined') {
         namespace = {};
         namespace.name = actualJigName;
     }
@@ -84,15 +84,18 @@ function create(JigName, staticMethods, prototypeMethods) {
     if (typeof namespace.init == 'undefined') {
         namespace.init = {};
     }
-    if (typeof namespace.prototype.init == 'undefined') {
+    if (typeof namespace.prototype.init === 'undefined') {
         namespace.prototype.init = {};
     }
 
-    //default Object to be merged at instantiation
-    namespace.default = {};
+    //make sure there are prototype default & plugin Objects
+    if(typeof namespace.prototype.default === 'undefined'){
+        namespace.prototype.default = {};
+    }
+    if(typeof namespace.prototype.plugin === 'undefined'){
+        namespace.prototype.plugin = {};
+    }
 
     return namespace;
-
-
 }
 
