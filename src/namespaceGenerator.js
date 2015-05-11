@@ -1,5 +1,5 @@
 /**
- * Created by lfcj on 08.05.15.
+ * Created by lfcj on May,2015
  */
 /*
 
@@ -7,7 +7,7 @@
  Task: Create interface to generate namespaces.
  Main Method:
  create(JigName->String, [staticMethods->Object], prototypeMethods->Object)
- JigName input must be: "namespace.Name";
+ JigName input can be: "namespace.Name", "Name" or "";
 
  First, I check if the given namespace exists.
  If not, create it.
@@ -32,32 +32,45 @@ function addMethods(method, namespace, isPrototype) {
 
 function create(JigName, staticMethods, prototypeMethods) {
 
-    /*1.Check if JigName input is correct, and divide it.*/
-    try {
-        var namespace_andJigName = JigName.split(".");
-        if (namespace_andJigName.length != 2) throw "Wrong JigName input"; //1
-        var namespace = namespace_andJigName[0];
-        var actualJigName = namespace_andJigName[1];
-        /*Check that prototypeMethods is not empty*/
-        if (prototypeMethods.length === 0) throw "Please insert some prototypes"
-    }
-    catch (err) {
-        console.log(err);
+
+    /*Arguments can be ("JigName", {}, {},), [args->case1]
+     *              or ("JigName", {}) -> Object is prototypeMethods [args->case2]
+     *              or ({}) -> prototypeMethods [args->case3]
+     */
+
+    /*Check JigName input*/
+
+    var namespace_andJigName = JigName.split(".");
+    var stringsInJigName = namespace_andJigName.length;
+    var actualJigName, namespace;
+    switch (stringsInJigName) {
+        case 1: //only name of Jig
+            actualJigName = namespace_andJigName[0];
+            break;
+        case 2: //both namespace and name of Jig
+            namespace = namespace_andJigName[0];
+            actualJigName = namespace_andJigName[1];
+            break;
+        default://no namespace or name of Jig
+            break;
     }
 
     /*If the namespace does not exist, create it and assign actualJigName to it.*/
-    if (typeof namespace == 'undefined') {
+    if (typeof namespace === 'undefined') {
         namespace = {};
         namespace.name = actualJigName;
     }
 
     //add staticMethods to namespace
-    if (typeof staticMethods != 'undefined') {//staticMethods is optional
+    if (typeof prototypeMethods != 'undefined') {//[args->case1]
         staticMethods.map(
             function (method) {
                 return addMethods(method, namespace, false);
             }
         );
+    }
+    else {//[args->case2
+        prototypeMethods = staticMethods;
     }
 
     //add prototypeMethods as prototype Methods to namespace
@@ -71,13 +84,18 @@ function create(JigName, staticMethods, prototypeMethods) {
     if (typeof namespace.init == 'undefined') {
         namespace.init = {};
     }
-    if (typeof namespace.prototype.init == 'undefined') {
+    if (typeof namespace.prototype.init === 'undefined') {
         namespace.prototype.init = {};
     }
 
-    //default Object to be merged at instantiation
-    namespace.default = {};
+    //make sure there are prototype default & plugin Objects
+    if(typeof namespace.prototype.default === 'undefined'){
+        namespace.prototype.default = {};
+    }
+    if(typeof namespace.prototype.plugin === 'undefined'){
+        namespace.prototype.plugin = {};
+    }
 
-
+    return namespace;
 }
 
