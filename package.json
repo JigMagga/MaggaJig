@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "./node_modules/.bin/testem"
   },
   "repository": {
     "type": "git",
@@ -38,7 +38,7 @@
       "name": "Akrem Abayed",
       "email": "akrem.abayed@takeaway.com"
     },
-        {
+    {
       "name": "Toni Meuschke",
       "email": "meuschke@takeaway.com",
       "url": "https://github.com/meuschke"
@@ -48,5 +48,10 @@
   "bugs": {
     "url": "https://github.com/JigMagga/MaggaJig/issues"
   },
-  "homepage": "https://github.com/JigMagga/MaggaJig"
+  "homepage": "https://github.com/JigMagga/MaggaJig",
+  "devDependencies": {
+    "browserify": "^10.1.3",
+    "mocha": "^2.2.4",
+    "testem": "^0.8.3"
+  }
 }
