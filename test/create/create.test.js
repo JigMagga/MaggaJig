@@ -2,15 +2,6 @@ describe('jig create test', function () {
   //TODO we should use a other way 
   var Jig = require("jig.js");
 
-  // // Before Hooks
-  // before(function (done) {
-    
-  // });
-
-  // beforeEach(function (done) {
-    
-  // });
-
   // Tests
   it('should create namespace', function () {
     
@@ -21,13 +12,45 @@ describe('jig create test', function () {
 
   });
 
-
-  // // After Hooks
-  // afterEach(function (done) {
+  it('should work without namespace', function () {
     
-  // });
+    var MyJig = Jig.create({});
 
-  // after(function (done) {
+    assert.notEqual(typeof MyJig, "undefined", "Jig was created");
+
+  });
+
+  it('should create static type', function () {
     
-  // });
+    Jig.create("Test.Namespace", {staticFN: function(){}}, {});
+    chai.isFunction(Test.Namespace.staticFN, "Static function was created");
+
+  });
+
+  it('should create prototype', function () {
+    
+    Jig.create("Test.Namespace", {staticFN: function(){}}, {prototypefn: function(){}});
+    var testInstance = new Test.Namespace();
+    chai.isFunction(testInstance.prototypefn, 'Prototype function was created');
+    chai.isNotFunction(Test.Namespace.prototypefn, "Prototype is not assign to static type");
+    chai.isFunction(Test.Namespace.prototype.prototypefn, "Prototype function was created");
+
+
+  });
+
+
+  it('should call setup and init', function () {
+    var setupFn = sinon.spy();
+    var initFn = sinon.spy();
+    var MyJig = Jig.create({setup: setupFn, init: initFn});
+
+    chai.expect(setupFn.called).to.be.true;
+    chai.expect(initFn.called).to.be.true;
+
+    var testInstance = new MyJig();
+
+  });
+
+
+
 });
