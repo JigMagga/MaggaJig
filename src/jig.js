@@ -1,9 +1,8 @@
 /**
  * [Jig description]
  */
+var global = this;
 function Jig() {
-
-    
 
 }
 

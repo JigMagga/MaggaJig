@@ -1,112 +1,143 @@
 /**
- * [exports description]
- * @param  {[type]} namespace [description]
- * @param  {[type]} static    [description]
- * @param  {[type]} proto     [description]
- * @return {[type]}           [description]
- */
-module.exports = function create(namespace, static, proto){
+ * Creates a namespace for a jig with statics as static methods,
+ * and proto as prototype methods.
+ * @param  {string} namespace - name of the existing/or to be created namespace.
+ * @param  {object} statics - object with static methods
+ * @param  {object} proto - object with prototype functions.
+ * @return {object} jig   - namespace of a jig
+ **/
 
+var extend;
+extend = require('util')._extend;
+var global = this;
 
-    /*Arguments can be ("JigName", {}, {},), [args->case1]
-     *              or ("JigName", {}) -> Object is proto [args->case2]
-     *              or ({}) -> proto [args->case3]
-     */
+module.exports = function create(namespace, statics, proto) {
 
-    /*Check JigName input*/
+    'use strict'
+    /**Arguments can be ("namespace", {}, {},),
+     *              or ("namespace", {}) -> Object is proto
+     *              or ({}) -> proto
+     *              or ({},{}) -> statics and proto.
+     *    "JigName" can be str.str.str.str...actualName
+     **/
 
-    var namespace_andJigName = namespace.split(".");
-    var stringsInJigName = namespace_andJigName.length;
-    var actualJigName, jig;
-    // TODO you can have many levels go through it with a loop
-    // Pseudocode 
-    // var tmpVar = global;
-    // for(splitArray){
-    // 
-    // 	if(!tempVar[currentLoopVar]){
-    // 		tempVar[currentLoopVar] = {};
-    // 	}
-    // 
-    // }
-    // 
-    // 
-    switch (stringsInJigName) {
-        case 1: //only name of Jig
-            actualJigName = namespace_andJigName[0];
-            break;
-        case 2: //both namespace and name of Jig
-            jig = namespace_andJigName[0];
-            actualJigName = namespace_andJigName[1];
-            break;
-        default://no namespace or name of Jig
-            break;
+    /**1: Create an object in global called Jigs thtat will contain namespaces.**/
+
+    if (typeof global["Jigs"] === 'undefined') {
+        global["Jigs"] = {};
     }
 
-    /*If the namespace does not exist, create it and assign actualJigName to it.*/
-    if (typeof jig === 'undefined') {
-        jig = {};
-        jig.name = actualJigName;
-    }
+    /**2: Check if there is a JigName, and if  it is deep (str.str...). Create
+     non existing namespaces and assign them to jig. **/
+    var actualJigName, jig, actualNamespace, parent;
+    if (typeof namespace === 'string') {//there is a namespace given
+        var namespaces = namespace.split(".");
+        var stringsGiven = namespaces.length;
 
-    //add static to namespace
-    if (typeof proto != 'undefined') {//[args->case1]
-        static.map(
-            function (method) {
-                return addMethods(method, jig, false);
-            }
-        );
-    }
-    else {//[args->case2
-        proto = static;
-    }
+        switch (stringsGiven) {
+        /**only name of a Jig is given**/
+            case 1:
+                actualJigName = namespaces[0];
 
-    //add proto as prototype Methods to namespace
-    proto.map(
-        function (method) {
-            return addMethods(method, jig, true);
+                /**create namespace if it does not exist.**/
+                if (typeof global.Jigs[actualJigName] === 'undefined') {
+                    global.Jigs[actualJigName] = {};
+                }
+                jig = global.Jigs[actualJigName];
+                break;
+            /**both namespace and name of Jig**/
+            case 2:
+                actualNamespace = namespaces[0];
+                actualJigName = namespaces[1];
+
+                /**create namespace if it does not exist.**/
+                if (typeof global.Jigs[actualNamespace] === 'undefined') {
+                    global.Jigs[actualNamespace] = {};
+                    global.Jigs[actualNamespace].name = actualNamespace;
+                    global.Jigs[actualNamespace][actualJigName] = {};
+                } else if (typeof global.Jigs[actualNamespace][actualJigName] === 'undefined') {
+                    global.Jigs[actualNamespace][actualJigName] = {};
+                }
+                parent = global.Jigs[actualNamespace];
+                jig = global.Jigs[actualNamespace][actualJigName];
+                jig.name = actualJigName;
+                break;
+            /**in case a deep namespace is given**/
+            default:
+                var tempGlobal, i, last;
+                tempGlobal = global["Jigs"];
+                last = stringsGiven - 1;
+                /**stringsGiven = [nSpc1, nSpc2,...,nSpcN]. Check if nSpc1 is in
+                 global, and in general if namespace nSpcX+1 is in namespace
+                 nSpcX  **/
+                for (i = 0; i < stringsGiven - 1; i++) {
+                    if (typeof tempGlobal[namespaces[i]] === 'undefined') {
+                        tempGlobal[namespaces[i]]= {};
+                        tempGlobal[namespaces[i]].name = namespaces[i];
+                    }
+                    tempGlobal = tempGlobal[namespaces[i]];
+                }
+                last = i;
+                parent = global.Jigs[namespaces[0]];//First namespace mentioned.
+                if (typeof tempGlobal[namespaces[last]] === 'undefined') {
+                    tempGlobal[namespaces[last]] = {};
+                }
+                jig = tempGlobal[namespaces[last]];
+                jig.name = namespaces[last];
+                break;
         }
-    );
+        /**Arguments are (namespace, {})**/
+        if (typeof proto === 'undefined') {
+            proto = statics;
 
-    //make sure that there are static && prototype init methods
-    if (typeof jig.init == 'undefined') {
+            /**add proto as prototype Methods to namespace**/
+            extend(jig.__proto__, proto);
+            /**Arguments are (namespace, {},{})**/
+        } else {
+            /**add statics and proto to namespace**/
+            extend(jig, statics);
+            extend(jig.__proto__, proto);
+        }
+
+    } else {/**create namespace, without name given
+     NEEDS TO BE IMPLEMENTED. OPTIONS:
+     1. Create a default object in global["Jigs"] that
+     contains all methods outside of a particular Jig.
+     2. Just extend those methods inside of global["Jigs"]
+     (probably messy).
+     **/
+        if (typeof proto == 'undefined') { //Argument is ({})
+            proto = statics;
+            //ADD PROTOS TO BE IMPLEMENTED
+            /**Arguments are ({},{})**/
+        } else {
+            //ADD STATIC AND PROTO TO BE IMPLEMENTED
+        }
+    }
+
+    /**make sure that there are statics && prototype init methods**/
+    if (typeof jig.init === 'undefined') {
         jig.init = {};
     }
-    if (typeof jig.prototype.init === 'undefined') {
-        jig.prototype.init = {};
+
+    if (typeof jig.__proto__.init === 'undefined') {
+        jig.__proto__.init = {};
     }
 
-    //make sure there are prototype default & plugin Objects
-    if(typeof jig.prototype.default === 'undefined'){
-        jig.prototype.default = {};
+    /**make sure there are prototype default & plugin Objects**/
+    if (typeof jig.__proto__.default === 'undefined') {
+        jig.__proto__.default = {};
     }
-    if(typeof jig.prototype.plugin === 'undefined'){
-        jig.prototype.plugin = {};
+    if (typeof jig.__proto__.plugin === 'undefined') {
+        jig.__proto__.plugin = {};
+    }
+    if (typeof parent !== 'undefined') {
+        jig = parent;
     }
 
-    return namespace;
-
-
-
+    return jig;
 }
 
 
-/**
- * Helper to add methodes
- * @param {[type]}  method      [description]
- * @param {[type]}  namespace   [description]
- * @param {Boolean} isPrototype [description]
- */
-function addMethods(method, namespace, isPrototype) {
-    "use strict";
-    var methodName = method.name;
-    if (typeof namespace.method == 'undefined' && isPrototype) {
-    	// TODO you do not need to assigne an object first 
-    	// Also that will not work because you will assigne every time on the same property name -> you need namespace.prototype[methodName] =
-        namespace.prototype.methodName = {};
-        namespace.prototype.methodName = method;
-    }
-    else {
-        namespace.methodName = {};
-        namespace.methodName = method;
-    }
-}
+
+
