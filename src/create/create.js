@@ -7,136 +7,90 @@
  * @return {object} jig   - namespace of a jig
  **/
 
-var extend;
-extend = require('util')._extend;
-var global = this;
+var extend = require('util')._extend;
 
 module.exports = function create(namespace, statics, proto) {
 
-    'use strict'
+    'use strict';
+    var jig, parent;
     /**Arguments can be ("namespace", {}, {},),
      *              or ("namespace", {}) -> Object is proto
      *              or ({}) -> proto
      *              or ({},{}) -> statics and proto.
-     *    "JigName" can be str.str.str.str...actualName
+     *    "JigName" can be a concatenation of strings (deep namespace)
      **/
 
-    /**1: Create an object in global called Jigs thtat will contain namespaces.**/
-
-    if (typeof global["Jigs"] === 'undefined') {
-        global["Jigs"] = {};
+    /**Find out which arguments are given**/
+    if (typeof proto === 'undefined') {
+        /**Arguments are ("namespace", {}), or ({},{})**/
+        if (typeof statics !== 'undefined') {
+            proto = statics;
+            statics = typeof namespace === 'string' ? undefined : namespace;
+            /**Argument is ({})**/
+        } else {
+            proto = namespace;
+        }
     }
-
-    /**2: Check if there is a JigName, and if  it is deep (str.str...). Create
-     non existing namespaces and assign them to jig. **/
-    var actualJigName, jig, actualNamespace, parent;
-    if (typeof namespace === 'string') {//there is a namespace given
+    /**1: Arguments are ("namespace", {}, {},) . Create
+     non existing namespaces and assign last one to jig. **/
+    if (typeof namespace === 'string') {
         var namespaces = namespace.split(".");
         var stringsGiven = namespaces.length;
-
-        switch (stringsGiven) {
-        /**only name of a Jig is given**/
-            case 1:
-                actualJigName = namespaces[0];
-
-                /**create namespace if it does not exist.**/
-                if (typeof global.Jigs[actualJigName] === 'undefined') {
-                    global.Jigs[actualJigName] = {};
-                }
-                jig = global.Jigs[actualJigName];
-                break;
-            /**both namespace and name of Jig**/
-            case 2:
-                actualNamespace = namespaces[0];
-                actualJigName = namespaces[1];
-
-                /**create namespace if it does not exist.**/
-                if (typeof global.Jigs[actualNamespace] === 'undefined') {
-                    global.Jigs[actualNamespace] = {};
-                    global.Jigs[actualNamespace].name = actualNamespace;
-                    global.Jigs[actualNamespace][actualJigName] = {};
-                } else if (typeof global.Jigs[actualNamespace][actualJigName] === 'undefined') {
-                    global.Jigs[actualNamespace][actualJigName] = {};
-                }
-                parent = global.Jigs[actualNamespace];
-                jig = global.Jigs[actualNamespace][actualJigName];
-                jig.name = actualJigName;
-                break;
-            /**in case a deep namespace is given**/
-            default:
-                var tempGlobal, i, last;
-                tempGlobal = global["Jigs"];
-                last = stringsGiven - 1;
-                /**stringsGiven = [nSpc1, nSpc2,...,nSpcN]. Check if nSpc1 is in
-                 global, and in general if namespace nSpcX+1 is in namespace
-                 nSpcX  **/
-                for (i = 0; i < stringsGiven - 1; i++) {
-                    if (typeof tempGlobal[namespaces[i]] === 'undefined') {
-                        tempGlobal[namespaces[i]]= {};
-                        tempGlobal[namespaces[i]].name = namespaces[i];
-                    }
-                    tempGlobal = tempGlobal[namespaces[i]];
-                }
-                last = i;
-                parent = global.Jigs[namespaces[0]];//First namespace mentioned.
-                if (typeof tempGlobal[namespaces[last]] === 'undefined') {
-                    tempGlobal[namespaces[last]] = {};
-                }
-                jig = tempGlobal[namespaces[last]];
-                jig.name = namespaces[last];
-                break;
+        var tempGlobal, i, last;
+        tempGlobal = global;
+        last = stringsGiven - 1;
+        /**For every str in namespace, check if it is already a namespace
+         in global. If not, create it**/
+        for (i = 0; i < stringsGiven - 1; i++) {
+            if (typeof tempGlobal[namespaces[i]] === 'undefined') {
+                tempGlobal[namespaces[i]] = {};
+                tempGlobal[namespaces[i]].name = namespaces[i];
+            }
+            tempGlobal = tempGlobal[namespaces[i]];
         }
-        /**Arguments are (namespace, {})**/
-        if (typeof proto === 'undefined') {
-            proto = statics;
-
-            /**add proto as prototype Methods to namespace**/
-            extend(jig.__proto__, proto);
-            /**Arguments are (namespace, {},{})**/
-        } else {
-            /**add statics and proto to namespace**/
-            extend(jig, statics);
-            extend(jig.__proto__, proto);
+        parent = global[namespaces[0]];//First namespace mentioned.
+        if (typeof tempGlobal[namespaces[last]] === 'undefined') {
+            tempGlobal[namespaces[last]] = {};
         }
-
-    } else {/**create namespace, without name given
-     NEEDS TO BE IMPLEMENTED. OPTIONS:
-     1. Create a default object in global["Jigs"] that
-     contains all methods outside of a particular Jig.
-     2. Just extend those methods inside of global["Jigs"]
-     (probably messy).
-     **/
-        if (typeof proto == 'undefined') { //Argument is ({})
-            proto = statics;
-            //ADD PROTOS TO BE IMPLEMENTED
-            /**Arguments are ({},{})**/
-        } else {
-            //ADD STATIC AND PROTO TO BE IMPLEMENTED
-        }
+        jig = tempGlobal[namespaces[last]];
+        jig.name = namespaces[last];
+    }
+    /**create jig object without name**/
+    if (typeof jig === 'undefined') {
+        jig = {};
     }
 
+    /**add statics and proto methods to jig**/
+    if (typeof jig.prototype === 'undefined') {
+        jig.prototype = {};
+    }
+    extend(jig.prototype, proto);
+    if (typeof statics !== 'undefined') {
+        extend(jig, statics);
+    }
     /**make sure that there are statics && prototype init methods**/
     if (typeof jig.init === 'undefined') {
-        jig.init = {};
+        jig.init = function(){}
     }
+    jig.init();
 
-    if (typeof jig.__proto__.init === 'undefined') {
-        jig.__proto__.init = {};
+    if (typeof jig.prototype.init === 'undefined') {
+        jig.prototype.init = {};
     }
 
     /**make sure there are prototype default & plugin Objects**/
-    if (typeof jig.__proto__.default === 'undefined') {
-        jig.__proto__.default = {};
+    if (typeof jig.prototype.default === 'undefined') {
+        jig.prototype.default = {};
     }
-    if (typeof jig.__proto__.plugin === 'undefined') {
-        jig.__proto__.plugin = {};
+    if (typeof jig.prototype.plugin === 'undefined') {
+        jig.prototype.plugin = {};
     }
     if (typeof parent !== 'undefined') {
         jig = parent;
     }
-
     return jig;
 }
+
 
 
 
