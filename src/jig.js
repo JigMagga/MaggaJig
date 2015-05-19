@@ -1,7 +1,6 @@
 /**
  * [Jig description]
  */
-var global = this;
 function Jig() {
 
 }
@@ -13,9 +12,7 @@ function Jig() {
 Jig.create = require("./create/create.js");
 
 
-
 /** @type {[type]} [description] */
 Jig.plugin = require("./plugin/plugin.js");
-
 
 module.exports = Jig;
