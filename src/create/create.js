@@ -76,8 +76,6 @@ module.exports = function create(namespace, statics, proto) {
     /**add prototype methods to jig**/
     extend(jig.prototype, proto);
 
-    ////////////////DONT FORGET!!
-
     jig.prototype.init = jig.prototype.init || function () {
         };
     /**make sure there are prototype default & plugin Objects**/
