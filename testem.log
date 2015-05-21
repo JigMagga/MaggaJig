@@ -1,0 +1,6 @@
+info Test'em starting... 
+info Seeking for config file... 
+info Starting ci 
+info Starting server 
+info Process node already killed. 
+info cmd: NODE_PATH=./src ./node_modules/.bin/mocha -r test/setup.js -R tap test/**/*.test.js 
