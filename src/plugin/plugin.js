@@ -5,20 +5,13 @@
  * @return {function}         It returns the namespace with the hooks added.
  */
 
+/*eslint-disable */
 var extend = require('util')._extend;
+/*eslint-enable */
 
-module.exports = function plugin(namespace, hooks) {
-    var Jig = require("jig.js");
-    /**namespace doesn't exist -> create it.**/
-    if (typeof global[namespace] === 'undefined') {//jigName does not exists
-        Jig.create(namespace, {});
-    }
-    var jig = global;
-    var namespaces = namespace.split("."), stringsGiven = namespaces.length;
-    /**Assign last namespace to jig**/
-    for (var i = 0; i < stringsGiven; i++) {
-        jig = jig[namespaces[i]];
-    }
-    extend(jig.prototype.plugins, hooks);
-}
 
+module.exports = function plugin(hooks) {
+    this.on('setup', hooks.preSetup);
+    this.on('preInit', hooks.preInit);
+    this.on('postInit', hooks.postInit);
+};

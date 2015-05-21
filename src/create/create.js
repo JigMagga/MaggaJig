@@ -4,98 +4,109 @@
  * @param  {string} namespace - name of the existing/or to be created namespace.
  * @param  {object} statics - object with static methods
  * @param  {object} proto - object with prototype functions.
- * @return {function} jig   - namespace of a jig
+ * @return {function} jig   - jig prototype
+ * Arguments can be ("namespace", {}, {},),
+ *              or ("namespace", {}) -> Object is proto
+ *              or ({}) -> proto
+ *              or ({},{}) -> statics and proto.
+ *    "JigName" can be a concatenation of strings (deep namespace)
  **/
 
-var extend = require('util')._extend;
 
 module.exports = function create(namespace, statics, proto) {
+    var EventEmitter = require('events').EventEmitter,
+    /*eslint-disable */
+        extend = require('util')._extend;
+    /*eslint-enable */
+    var jig,
+    // parent,
+        namespaces,
+        i,
+        len,
+        tempGlobal = global,
+        fn = function () {
+        };
 
-    'use strict';
-    var jig, parent;
-    /**Arguments can be ("namespace", {}, {},),
-     *              or ("namespace", {}) -> Object is proto
-     *              or ({}) -> proto
-     *              or ({},{}) -> statics and proto.
-     *    "JigName" can be a concatenation of strings (deep namespace)
-     **/
 
-    /**Find out which arguments are given**/
+    // Find out which arguments are given
     if (typeof proto === 'undefined') {
-        /**Arguments are ("namespace", {}), or ({},{})**/
+        // Arguments are ("namespace", {}), or ({},{})
         if (typeof statics !== 'undefined') {
             proto = statics;
-            statics = typeof namespace === 'string' ? undefined : namespace;
-            /**Argument is ({})**/
+            statics = typeof namespace === 'string' ? null : namespace;
+            // Argument is ({})
         } else {
             proto = namespace;
         }
     }
-    /**1: Arguments are ("namespace", {}, {},) . Create
-     non existing namespaces and assign last one to jig. **/
-    var tempGlobal, last;
-    tempGlobal = global;
+
+
+    // create Jig constructor
+    jig = function (defaults, plugins) {
+        /*eslint-disable */
+        this._eventEmitter = new EventEmitter();
+        /*eslint-enable */
+        this.emit('setup');
+        this.setup(defaults, plugins);
+        this.defaults = extend({}, this.constructor.defaults, defaults);
+        this.plugins = extend({}, this.constructor.plugins, plugins);
+        this.emit('preInit');
+        this.init();
+        this.emit('postInit');
+    };
+
+    // 1: Arguments are ("namespace", {}, {},) . Create
+    // non existing namespaces and assign last one to jig.
     if (typeof namespace === 'string') {
-        var namespaces = namespace.split(".");
-        var stringsGiven = namespaces.length;
-        last = stringsGiven - 1;
-        /**For every str in namespace, check if it is already a namespace
-         in global. If not, create it**/
-        for (var i = 0; i < stringsGiven - 1; i++) {
-            if (typeof tempGlobal[namespaces[i]] === 'undefined') {
-                tempGlobal[namespaces[i]] = function () {
-                };
+        namespaces = namespace.split('.');
+        // For every str in namespace, check if it is already a namespace
+        // in global. If not, create it**/
+        for (i = 0, len = namespaces.length - 1; i < len; i++) {
+            if (!tempGlobal[namespaces[i]]) {
+                tempGlobal[namespaces[i]] = {};
             }
             tempGlobal = tempGlobal[namespaces[i]];
-        }
-        parent = global[namespaces[0]];//First namespace mentioned.
-        tempGlobal[namespaces[last]] = tempGlobal[namespaces[last]] || function () {
-            };
-        jig =  tempGlobal[namespaces[last]];
-    }
-    /**If there is not a name, create jig**/
-    jig = jig || function(){};
 
-    /**add static methods to jig.**/
-    if (typeof statics === 'object') {
-        var methods, j;
-        methods = Object.keys(statics);
-        j = methods.length;
-        while (j--) {
-            jig[methods[j]] = statics[methods[j]];
         }
+        tempGlobal[namespaces[namespaces.length - 1]] = jig;
+        // First namespace mentioned. TODO why do you need parent here ?
+        //parent = global[namespaces[0]];
     }
 
 
-    jig.init = jig.init || function () {
-        };
-    jig.setup = jig.setup || function () {
-        };
+    jig.prototype.emit = function (event, data) {
+        /*eslint-disable */
+        this._eventEmitter.emit(event, data);
+        /*eslint-enable */
+    };
 
 
-    /**add prototype methods to jig**/
+    // add static methods to jig
+    extend(jig, statics);
+
+
+    jig.init = jig.init || fn;
+    jig.setup = jig.setup || fn;
+
+
+    // add prototype methods to jig
     extend(jig.prototype, proto);
 
-    jig.prototype.init = jig.prototype.init || function () {
-        };
-    /**make sure there are prototype default & plugin Objects**/
-    jig.prototype.default = jig.prototype.default || {};
-    jig.prototype.plugins = jig.prototype.plugins || {};
+    jig.prototype.init = jig.prototype.init || fn;
+    jig.prototype.setup = jig.prototype.setup || fn;
+    // make sure there are default & plugin Objects
+    jig.default = jig.default || {};
+    jig.plugins = jig.plugins || {};
 
-    jig.init();
     jig.setup();
+    jig.init();
+    jig.create = this.create;
 
+    // REMINDER: program, so default object merges with one passed
+    // at instatiation.
 
-    //REMINDER: program, so default object merges with one passed
-    //at instatiation.
-
-    if (typeof parent !== 'undefined') {
-        jig = parent;
-    }
+    //if (typeof parent !== 'undefined') {
+    //    jig = parent;
+    //}
     return jig;
-}
-
-
-
-
-
+};

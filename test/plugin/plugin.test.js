@@ -1,7 +1,6 @@
+/*global assert, chai*/
 describe('jig plugin test', function () {
-    //TODO we should use a other way
     var Jig = require("jig.js");
-    var chai = require('chai');
 
     // Tests
     it('should create plugin', function () {
