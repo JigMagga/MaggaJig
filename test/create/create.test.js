@@ -96,18 +96,25 @@ describe('jig create test', function () {
     it('should inherit create function', function () {
         var MyParentJig = Jig.create({});
         var MyChildJig = MyParentJig.create({});
+
+        chai.assert.isFunction(MyChildJig.create, "create function inherited.");
     });
 
     it('should inherit statics and prototypes', function () {
         var MyParentJig = Jig.create({
-                parent: function () {
-                }
-            }, {});
+            parent: function () {
+            }
+        }, {
+            protoparent: function () {
+            }
+        });
         var MyChildJig = MyParentJig.create({
-            child : function(){}
+            child: function () {
+            }
         }, {});
 
-        chai.assert.isFunction(MyChildJig.parent, 'Static function was created');
+        chai.assert.isFunction(MyChildJig.parent, 'Static function was inherited');
+        chai.assert.isFunction(MyChildJig.prototype.protoparent, 'Prototype function was inherited');
         chai.assert.isFunction(MyChildJig.child, 'Static function was created');
     });
 

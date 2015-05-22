@@ -9,7 +9,7 @@
  *              or ("namespace", {}) -> Object is proto
  *              or ({}) -> proto
  *              or ({},{}) -> statics and proto.
- *    "JigName" can be a concatenation of strings (deep namespace)
+ *    "namespace" can be a concatenation of strings (deep namespace)
  **/
 
 
@@ -19,29 +19,31 @@ module.exports = function create(namespace, statics, proto) {
         extend = require('util')._extend;
     /*eslint-enable */
     var jig,
-    // parent,
         namespaces,
         i,
         len,
+        proto2Inherit,
+        statics2Inherit,
         tempGlobal = global,
         fn = function () {
         };
+    /** Collect static and  prototype methods to inherit **/
+    proto2Inherit = this.prototype || {};
+    statics2Inherit = Object.keys(this);
 
-
-    // Find out which arguments are given
+    /** Find out which arguments are given**/
     if (typeof proto === 'undefined') {
-        // Arguments are ("namespace", {}), or ({},{})
+        /** Arguments are ("namespace", {}), or ({},{})**/
         if (typeof statics !== 'undefined') {
             proto = statics;
             statics = typeof namespace === 'string' ? null : namespace;
-            // Argument is ({})
+            /** Argument is ({})**/
         } else {
             proto = namespace;
         }
     }
-
-
-    // create Jig constructor
+    console.log("statics", statics2Inherit);
+    /** create Jig constructor**/
     jig = function (defaults, plugins) {
         /*eslint-disable */
         this._eventEmitter = new EventEmitter();
@@ -55,12 +57,12 @@ module.exports = function create(namespace, statics, proto) {
         this.emit('postInit');
     };
 
-    // 1: Arguments are ("namespace", {}, {},) . Create
-    // non existing namespaces and assign last one to jig.
+    /** 1: Arguments are ("namespace", {}, {},) . Create
+     non existing namespaces and assign last one to jig.**/
     if (typeof namespace === 'string') {
         namespaces = namespace.split('.');
-        // For every str in namespace, check if it is already a namespace
-        // in global. If not, create it**/
+        /** For every str in namespace, check if it is already a namespace
+         in global. If not, create it**/
         for (i = 0, len = namespaces.length - 1; i < len; i++) {
             if (!tempGlobal[namespaces[i]]) {
                 tempGlobal[namespaces[i]] = {};
@@ -69,44 +71,42 @@ module.exports = function create(namespace, statics, proto) {
 
         }
         tempGlobal[namespaces[namespaces.length - 1]] = jig;
-        // First namespace mentioned. TODO why do you need parent here ?
-        //parent = global[namespaces[0]];
     }
 
-
     jig.prototype.emit = function (event, data) {
-        /*eslint-disable */
+        /**eslint-disable **/
         this._eventEmitter.emit(event, data);
-        /*eslint-enable */
+        /** eslint-enable **/
     };
 
-
-    // add static methods to jig
+    /**add static methods to jig and inherit from parent Jig**/
     extend(jig, statics);
 
+    /**extend needs an object as second argument, and
+     'this' is not an object, so I recreated 'extend' for functions.**/
+    i = statics2Inherit.length;
+    while (i--) {
+        jig[statics2Inherit[i]] = this[statics2Inherit[i]];
+    }
 
     jig.init = jig.init || fn;
     jig.setup = jig.setup || fn;
 
-
-    // add prototype methods to jig
+    //**add prototype methods to jig and inherit from parent Jig **/
     extend(jig.prototype, proto);
+    extend(jig.prototype, proto2Inherit);
+
 
     jig.prototype.init = jig.prototype.init || fn;
     jig.prototype.setup = jig.prototype.setup || fn;
-    // make sure there are default & plugin Objects
+
+    /** make sure there are default & plugin Objects **/
     jig.default = jig.default || {};
     jig.plugins = jig.plugins || {};
+    /**TODO should setup() and init() be called only at instantiation?,
+     * TODO or also (here) when creating the namespace?.**/
+    /*jig.setup();
+     jig.init(); */
 
-    jig.setup();
-    jig.init();
-    jig.create = this.create;
-
-    // REMINDER: program, so default object merges with one passed
-    // at instatiation.
-
-    //if (typeof parent !== 'undefined') {
-    //    jig = parent;
-    //}
     return jig;
 };
