@@ -2,15 +2,15 @@ describe('jig create test', function () {
     var Jig = require('jig.js');
 
     // Tests
+    /*
+     it('should create namespace', function () {
 
-    it('should create namespace', function () {
+     Jig.create('Test.Namespace', {});
 
-        Jig.create('Test.Namespace', {});
+     assert.notEqual(typeof Test, 'undefined', 'Global namespace was created');
+     assert.notEqual(typeof Test.Namespace, 'undefined', 'Global deep namespace was created');
 
-        assert.notEqual(typeof Test, 'undefined', 'Global namespace was created');
-        assert.notEqual(typeof Test.Namespace, 'undefined', 'Global deep namespace was created');
-
-    });
+     });*/
 
     it('should create prototype', function () {
 
@@ -31,12 +31,17 @@ describe('jig create test', function () {
                 console.log(2);
             }
         });
+        /*var testa = new Object(function a() {
+            console.log(3);
+        });
+        var testo = new Object(function a() {
+            console.log(3);
+        });*/
 
-
-
-        //chai.expect(testInstance).to.eql(test2);
-        chai.assert.isFunction(testInstance.prototypefn, 'Prototype function was created');
-        //chai.assert.isFunction(testInstance.view, 'Prototype function was created');
+        // chai.expect(testInstance).to.eql(test2); //false
+        // chai.expect(testa).to.equal(testo); //also false
+        chai.assert.isFunction(testInstance.__proto__.prototypefn, 'Prototype function was created');
+        chai.assert.isFunction(testInstance.defaults.view, 'Prototype function was created at instatiation');
         chai.assert.isNotFunction(Test.Namespace.prototypefn, 'Prototype is not assign to static type');
         chai.assert.isFunction(Test.Namespace.prototype.prototypefn, 'Prototype function was created');
 
@@ -78,14 +83,13 @@ describe('jig create test', function () {
         }, {});
         chai.assert.isFunction(myJig.staticFN, 'Static function was created');
     });
-
     it('should call setup and init', function () {
         var setupFn = sinon.spy();
         var initFn = sinon.spy();
-        var MyJig = Jig.create({}, {
+        var MyJig = Jig.create({
             setup: setupFn,
             init: initFn
-        });
+        }, {});
         var testInstance = new MyJig();
 
         chai.expect(setupFn.called).to.be.true;

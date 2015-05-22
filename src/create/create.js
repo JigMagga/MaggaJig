@@ -22,14 +22,16 @@ module.exports = function create(namespace, statics, proto) {
         namespaces,
         i,
         len,
+        temp={},
         proto2Inherit,
         statics2Inherit,
         tempGlobal = global,
         fn = function () {
         };
-    /** Collect static and  prototype methods to inherit **/
+    /** Collect inheritable static and prototype methods **/
     proto2Inherit = this.prototype || {};
     statics2Inherit = Object.keys(this);
+
 
     /** Find out which arguments are given**/
     if (typeof proto === 'undefined') {
@@ -42,7 +44,7 @@ module.exports = function create(namespace, statics, proto) {
             proto = namespace;
         }
     }
-    console.log("statics", statics2Inherit);
+
     /** create Jig constructor**/
     jig = function (defaults, plugins) {
         /*eslint-disable */
@@ -50,8 +52,9 @@ module.exports = function create(namespace, statics, proto) {
         /*eslint-enable */
         this.emit('setup');
         this.setup(defaults, plugins);
-        this.defaults = extend({}, this.constructor.defaults, defaults);
-        this.plugins = extend({}, this.constructor.plugins, plugins);
+        this.defaults = extend(temp, defaults, this.constructor.defaults);
+        temp = {}; //flush temp.
+        this.plugins = extend(temp, plugins, this.constructor.plugins);
         this.emit('preInit');
         this.init();
         this.emit('postInit');
@@ -80,19 +83,18 @@ module.exports = function create(namespace, statics, proto) {
     };
 
     /**add static methods to jig and inherit from parent Jig**/
-    extend(jig, statics);
-
-    /**extend needs an object as second argument, and
-     'this' is not an object, so I recreated 'extend' for functions.**/
+    jig = extend(jig, statics);
     i = statics2Inherit.length;
     while (i--) {
-        jig[statics2Inherit[i]] = this[statics2Inherit[i]];
+        if (!jig[statics2Inherit[i]]) {
+            jig[statics2Inherit[i]] = this[statics2Inherit[i]];
+        }
     }
 
     jig.init = jig.init || fn;
     jig.setup = jig.setup || fn;
 
-    //**add prototype methods to jig and inherit from parent Jig **/
+//**add prototype methods to jig and inherit from parent Jig **/
     extend(jig.prototype, proto);
     extend(jig.prototype, proto2Inherit);
 
@@ -101,12 +103,12 @@ module.exports = function create(namespace, statics, proto) {
     jig.prototype.setup = jig.prototype.setup || fn;
 
     /** make sure there are default & plugin Objects **/
-    jig.default = jig.default || {};
-    jig.plugins = jig.plugins || {};
-    /**TODO should setup() and init() be called only at instantiation?,
-     * TODO or also (here) when creating the namespace?.**/
-    /*jig.setup();
-     jig.init(); */
+    jig.default = extend({}, jig.default);
+    jig.plugins = extend({}, jig.plugins);
+
+    jig.setup();
+    jig.init();
 
     return jig;
-};
+}
+;

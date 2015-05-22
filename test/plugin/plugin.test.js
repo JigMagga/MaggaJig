@@ -12,26 +12,27 @@ describe('jig plugin test', function () {
             }
         });
         Test.Namespace.plugin({
-            init : function(){
+            init: function () {
                 console.log("TEST");
             }
         });
 
         new Test.Namespace();
+    });
+    it('Pass plugins in the jig', function () {
 
+        Jig.create('Test.Namespace', {
+            plugins: {
+                myPlug: function () {
+                }
+            }
+        }, {});
+
+        var test = Test.Namespace();
+
+        chai.assert.isFunction(Test.Namespace.plugins.myPlug, 'Plugins were extended');
+        chai.assert.isFunction(test.myPlug, 'Plugins inherited a instatiation');
     });
 
-    //it('should merge plugins with object given at instatiation', function () {
-    //
-    //    Jig.plugin("Merge.Hooks", {
-    //        init: function () {
-    //        },
-    //        // setup function is called before instantiation
-    //        preSetup: function () {
-    //        }
-    //    });
-    //
-    //    var instanceOfMerge = new Merge.Hooks({}, {view: function(){}});
-    //    //chai.assert.isFunction(instanceOfMerge.plugins.view, "merge completed");
-    //});
+
 });
