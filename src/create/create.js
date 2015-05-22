@@ -32,7 +32,7 @@ module.exports = function create(namespace, statics, proto) {
         }
         keys = Object.keys(add);
         z = keys.length;
-        while (i--) {
+        while (z--) {
             origin[keys[z]] = add[keys[z]];
         }
         return origin;
