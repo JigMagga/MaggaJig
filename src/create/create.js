@@ -21,18 +21,19 @@ module.exports = function create(namespace, statics, proto) {
         namespaces,
         i,
         len,
-        tempGlobal = global,
-        fn = function () {
-        };
+        tempGlobal = global;
 
     function extend(origin, add) {
+        var keys,
+            z;
         // Don't do anything if add isn't undefined
-        if (!add) return origin;
-
-        var keys = Object.keys(add);
-        var i = keys.length;
+        if (!add) {
+            return origin;
+        }
+        keys = Object.keys(add);
+        z = keys.length;
         while (i--) {
-            origin[keys[i]] = add[keys[i]];
+            origin[keys[z]] = add[keys[z]];
         }
         return origin;
     }
@@ -95,8 +96,6 @@ module.exports = function create(namespace, statics, proto) {
     // add prototype methods to jig
     extend(jig.prototype, this.prototype);
     extend(jig.prototype, proto);
-
-    console.log("TESt", jig.setup === this.setup);
 
 
     // execute setup and init
