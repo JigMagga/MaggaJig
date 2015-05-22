@@ -1,60 +1,62 @@
 {
-  "name": "MaggaJig",
-  "version": "1.0.0",
-  "description": "A Jig is a container for building components",
-  "main": "src/main.js",
-  "directories": {
-    "test": "test"
-  },
-  "scripts": {
-    "test": "./node_modules/.bin/testem ci",
-    "testdev": "./node_modules/.bin/testem"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/JigMagga/MaggaJig.git"
-  },
-  "keywords": [
-    "JigMagga",
-    "microservices",
-    "container",
-    "isomorph"
-  ],
-  "author": {
-    "name": "yd. yourdelivery GmbH",
-    "web": "http://www.lieferando.de/"
-  },
-  "contributors": [
-    {
-      "name": "Luisa Castaño",
-      "email": "luisa.castano@takeaway.com",
-      "url": "https://github.com/lfcj"
+    "name": "MaggaJig",
+    "version": "1.0.0",
+    "description": "A Jig is a container for building components",
+    "main": "src/main.js",
+    "directories": {
+        "test": "test"
     },
-    {
-      "name": "Jaroslav Popov",
-      "email": "jaroslav.popov@takeaway.com",
-      "url": "https://github.com/chilicoder"
+    "scripts": {
+        "test": "./node_modules/.bin/testem",
+        "testCI": "./node_modules/.bin/testem ci",
+        "eslint": "./node_modules/eslint/bin/eslint.js ."
     },
-    {
-      "name": "Akrem Abayed",
-      "email": "akrem.abayed@takeaway.com"
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/JigMagga/MaggaJig.git"
     },
-    {
-      "name": "Toni Meuschke",
-      "email": "meuschke@takeaway.com",
-      "url": "https://github.com/meuschke"
+    "keywords": [
+        "JigMagga",
+        "microservices",
+        "container",
+        "isomorph"
+    ],
+    "author": {
+        "name": "yd. yourdelivery GmbH",
+        "web": "http://www.lieferando.de/"
+    },
+    "contributors": [
+        {
+            "name": "Luisa Castaño",
+            "email": "luisa.castano@takeaway.com",
+            "url": "https://github.com/lfcj"
+        },
+        {
+            "name": "Jaroslav Popov",
+            "email": "jaroslav.popov@takeaway.com",
+            "url": "https://github.com/chilicoder"
+        },
+        {
+            "name": "Akrem Abayed",
+            "email": "akrem.abayed@takeaway.com"
+        },
+        {
+            "name": "Toni Meuschke",
+            "email": "meuschke@takeaway.com",
+            "url": "https://github.com/meuschke"
+        }
+    ],
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/JigMagga/MaggaJig/issues"
+    },
+    "homepage": "https://github.com/JigMagga/MaggaJig",
+    "devDependencies": {
+        "browserify": "^10.1.3",
+        "chai": "^2.3.0",
+        "eslint": "^0.21.2",
+        "mocha": "^2.2.4",
+        "sinon": "^1.14.1",
+        "testem": "^0.8.3"
     }
-  ],
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/JigMagga/MaggaJig/issues"
-  },
-  "homepage": "https://github.com/JigMagga/MaggaJig",
-  "devDependencies": {
-    "browserify": "^10.1.3",
-    "chai": "^2.3.0",
-    "mocha": "^2.2.4",
-    "sinon": "^1.14.1",
-    "testem": "^0.8.3"
-  }
 }
