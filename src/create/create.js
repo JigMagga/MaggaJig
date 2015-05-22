@@ -13,11 +13,9 @@
  **/
 
 
+
 module.exports = function create(namespace, statics, proto) {
-    var EventEmitter = require('events').EventEmitter,
-    /*eslint-disable */
-        extend = require('util')._extend;
-    /*eslint-enable */
+    var EventEmitter = require('events').EventEmitter;
     var jig,
     // parent,
         namespaces,
@@ -27,6 +25,17 @@ module.exports = function create(namespace, statics, proto) {
         fn = function () {
         };
 
+    function extend(origin, add) {
+        // Don't do anything if add isn't undefined
+        if (!add) return origin;
+
+        var keys = Object.keys(add);
+        var i = keys.length;
+        while (i--) {
+            origin[keys[i]] = add[keys[i]];
+        }
+        return origin;
+    }
 
     // Find out which arguments are given
     if (typeof proto === 'undefined') {
@@ -42,14 +51,13 @@ module.exports = function create(namespace, statics, proto) {
 
 
     // create Jig constructor
-    jig = function (defaults, plugins) {
+    jig = function (defaults) {
         /*eslint-disable */
         this._eventEmitter = new EventEmitter();
         /*eslint-enable */
         this.emit('setup');
-        this.setup(defaults, plugins);
+        this.setup(defaults);
         this.defaults = extend({}, this.constructor.defaults, defaults);
-        this.plugins = extend({}, this.constructor.plugins, plugins);
         this.emit('preInit');
         this.init();
         this.emit('postInit');
@@ -66,11 +74,10 @@ module.exports = function create(namespace, statics, proto) {
                 tempGlobal[namespaces[i]] = {};
             }
             tempGlobal = tempGlobal[namespaces[i]];
-
         }
         tempGlobal[namespaces[namespaces.length - 1]] = jig;
         // First namespace mentioned. TODO why do you need parent here ?
-        //parent = global[namespaces[0]];
+        // parent = global[namespaces[0]];
     }
 
 
@@ -82,25 +89,20 @@ module.exports = function create(namespace, statics, proto) {
 
 
     // add static methods to jig
+    extend(jig, this);
     extend(jig, statics);
 
-
-    jig.init = jig.init || fn;
-    jig.setup = jig.setup || fn;
-
-
     // add prototype methods to jig
+    extend(jig.prototype, this.prototype);
     extend(jig.prototype, proto);
 
-    jig.prototype.init = jig.prototype.init || fn;
-    jig.prototype.setup = jig.prototype.setup || fn;
-    // make sure there are default & plugin Objects
-    jig.default = jig.default || {};
-    jig.plugins = jig.plugins || {};
+    console.log("TESt", jig.setup === this.setup);
 
+
+    // execute setup and init
     jig.setup();
     jig.init();
-    jig.create = this.create;
+
 
     // REMINDER: program, so default object merges with one passed
     // at instatiation.

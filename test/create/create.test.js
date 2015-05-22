@@ -33,7 +33,6 @@ describe('jig create test', function () {
         });
 
 
-        console.log(test2);
 
         //chai.expect(testInstance).to.eql(test2);
         chai.assert.isFunction(testInstance.prototypefn, 'Prototype function was created');
