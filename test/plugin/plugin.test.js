@@ -1,9 +1,9 @@
 describe('jig plugin test', function () {
-    var Jig = require("jig.js");
+    var Jig = require('jig.js');
+    var test, Nspace;
 
     // Tests
     it('should create plugin', function () {
-
         Jig.create('Test.Namespace', {
             staticFN: function () {
             }
@@ -11,16 +11,19 @@ describe('jig plugin test', function () {
             prototypefn: function () {
             }
         });
+        // output in console: TEST
         Test.Namespace.plugin({
             init: function () {
-                console.log("TEST");
+                console.log('TEST');
             }
         });
-        var test = new Test.Namespace();
-        //new Test.Namespace(); //TODO This should cause a 2nd TEST output.
+        // 2nd output of TEST in console
+        Test.Namespace.plugins.init();
+        // 3rd output of TEST in console
+        test = new Test.Namespace();
+        test.plugins.init();
     });
     it('Pass plugins in the jig', function () {
-
         Jig.create('Test.Namespace', {
             plugins: {
                 myPlug: function () {
@@ -28,14 +31,13 @@ describe('jig plugin test', function () {
             }
         }, {});
 
-        var nspace; //When calling Test.Namespace(), test inherits from Test
-        nspace = Test.Namespace;//instead of from Namespace, because this=Test
-        var test = new nspace();
+        // When calling Test.Namespace(), test inherits from Test
+        // instead of from Namespace, because this=Test
+        Nspace = Test.Namespace;
+        test = new Nspace();
 
         chai.assert.isFunction(Test.Namespace.plugins.myPlug, 'Plugins were extended');
         chai.assert.isFunction(test.plugins.myPlug, 'Plugins inherited a instatiation');
-        //or, if plugins are also static Methods:
-        //chai.assert.isFunction(test.myPlug, 'Plugins inherited a instatiation');
     });
 
 });

@@ -36,9 +36,9 @@ module.exports = function create(namespace, statics, proto) {
         return origin;
     }
 
-    //Find out which arguments are given
+    // Find out which arguments are given
     if (typeof proto === 'undefined') {
-        //Arguments are ("namespace", {}), or ({},{})
+        // Arguments are ("namespace", {}), or ({},{})
         if (typeof statics !== 'undefined') {
             proto = statics;
             statics = typeof namespace === 'string' ? null : namespace;
@@ -48,11 +48,10 @@ module.exports = function create(namespace, statics, proto) {
         }
     }
 
-
     // create Jig constructor
     jig = function (defaults, plugins) {
-        //console.log("this in constructor Scope", this);
-        //inherit static methods from this.
+        // console.log("this in constructor Scope", this);
+        // inherit static methods from this.
         extend(this, this.__proto__.constructor);
         /*eslint-disable */
         this._eventEmitter = new EventEmitter();
@@ -61,8 +60,6 @@ module.exports = function create(namespace, statics, proto) {
         extend(this.defaults, this.constructor.defaults);
         this.plugins = extend({}, plugins);
         extend(this.plugins, this.constructor.plugins);
-        //and  (change here influences plugin.test.js)
-        //extend(this, this.plugins); //plugins are also staticMethods then.
         this.emit('setup');
         this.setup(defaults);
         this.emit('preInit');
@@ -70,10 +67,10 @@ module.exports = function create(namespace, statics, proto) {
         this.emit('postInit');
     };
 
-    //Arguments are ("namespace", {}, {},)
+    // Arguments are ("namespace", {}, {},)
     if (typeof namespace === 'string') {
         namespaces = namespace.split('.');
-        //For every str in namespace, check if it is already a namespace
+        // For every str in namespace, check if it is already a namespace
         // in global. If not, create it, and assign last one to jig
         for (i = 0, len = namespaces.length - 1; i < len; i++) {
             if (!tempGlobal[namespaces[i]]) {
@@ -90,11 +87,14 @@ module.exports = function create(namespace, statics, proto) {
         /** eslint-enable **/
     };
 
-    //inherit from parent Jig and add static methods to jig
+    // inherit from parent Jig and add static methods to jig
     extend(jig, this);
     extend(jig, statics);
 
-    //inherit from parent Jig and add prototype methods to jig
+    // make sure the is a plugins object
+    jig.plugins = jig.plugins || {};
+
+    // inherit from parent Jig and add prototype methods to jig
     extend(jig.prototype, this.prototype);
     extend(jig.prototype, proto);
 
