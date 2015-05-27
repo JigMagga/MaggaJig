@@ -14,64 +14,72 @@
 
 
 module.exports = function create(namespace, statics, proto) {
-    var EventEmitter = require('events').EventEmitter,
-    /*eslint-disable */
-        extend = require('util')._extend;
-    /*eslint-enable */
+    var EventEmitter = require('events').EventEmitter;
     var jig,
         namespaces,
         i,
         len,
-        temp={},
-        proto2Inherit,
-        statics2Inherit,
-        tempGlobal = global,
-        fn = function () {
-        };
-    /** Collect inheritable static and prototype methods **/
-    proto2Inherit = this.prototype || {};
-    statics2Inherit = Object.keys(this);
+        tempGlobal = global;
 
+    function extend(origin, add) {
+        var keys,
+            z;
+        // Do nothing if add is undefined
+        if (!add) {
+            return origin;
+        }
+        keys = Object.keys(add);
+        z = keys.length;
+        while (z--) {
+            origin[keys[z]] = add[keys[z]];
+        }
+        return origin;
+    }
 
-    /** Find out which arguments are given**/
+    //Find out which arguments are given
     if (typeof proto === 'undefined') {
-        /** Arguments are ("namespace", {}), or ({},{})**/
+        //Arguments are ("namespace", {}), or ({},{})
         if (typeof statics !== 'undefined') {
             proto = statics;
             statics = typeof namespace === 'string' ? null : namespace;
-            /** Argument is ({})**/
+            // Argument is ({})
         } else {
             proto = namespace;
         }
     }
 
-    /** create Jig constructor**/
+
+    // create Jig constructor
     jig = function (defaults, plugins) {
+        //console.log("this in constructor Scope", this);
+        //inherit static methods from this.
+        extend(this, this.__proto__.constructor);
         /*eslint-disable */
         this._eventEmitter = new EventEmitter();
         /*eslint-enable */
+        this.defaults = extend({}, defaults);
+        extend(this.defaults, this.constructor.defaults);
+        this.plugins = extend({}, plugins);
+        extend(this.plugins, this.constructor.plugins);
+        //and  (change here influences plugin.test.js)
+        //extend(this, this.plugins); //plugins are also staticMethods then.
         this.emit('setup');
-        this.setup(defaults, plugins);
-        this.defaults = extend(temp, defaults, this.constructor.defaults);
-        temp = {}; //flush temp.
-        this.plugins = extend(temp, plugins, this.constructor.plugins);
+        this.setup(defaults);
         this.emit('preInit');
         this.init();
         this.emit('postInit');
     };
 
-    /** 1: Arguments are ("namespace", {}, {},) . Create
-     non existing namespaces and assign last one to jig.**/
+    //Arguments are ("namespace", {}, {},)
     if (typeof namespace === 'string') {
         namespaces = namespace.split('.');
-        /** For every str in namespace, check if it is already a namespace
-         in global. If not, create it**/
+        //For every str in namespace, check if it is already a namespace
+        // in global. If not, create it, and assign last one to jig
         for (i = 0, len = namespaces.length - 1; i < len; i++) {
             if (!tempGlobal[namespaces[i]]) {
                 tempGlobal[namespaces[i]] = {};
             }
             tempGlobal = tempGlobal[namespaces[i]];
-
         }
         tempGlobal[namespaces[namespaces.length - 1]] = jig;
     }
@@ -82,29 +90,13 @@ module.exports = function create(namespace, statics, proto) {
         /** eslint-enable **/
     };
 
-    /**add static methods to jig and inherit from parent Jig**/
-    jig = extend(jig, statics);
-    i = statics2Inherit.length;
-    while (i--) {
-        if (!jig[statics2Inherit[i]]) {
-            jig[statics2Inherit[i]] = this[statics2Inherit[i]];
-        }
-    }
+    //inherit from parent Jig and add static methods to jig
+    extend(jig, this);
+    extend(jig, statics);
 
-    jig.init = jig.init || fn;
-    jig.setup = jig.setup || fn;
-
-//**add prototype methods to jig and inherit from parent Jig **/
+    //inherit from parent Jig and add prototype methods to jig
+    extend(jig.prototype, this.prototype);
     extend(jig.prototype, proto);
-    extend(jig.prototype, proto2Inherit);
-
-
-    jig.prototype.init = jig.prototype.init || fn;
-    jig.prototype.setup = jig.prototype.setup || fn;
-
-    /** make sure there are default & plugin Objects **/
-    jig.default = extend({}, jig.default);
-    jig.plugins = extend({}, jig.plugins);
 
     jig.setup();
     jig.init();

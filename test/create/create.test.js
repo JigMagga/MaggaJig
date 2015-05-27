@@ -2,7 +2,6 @@ describe('jig create test', function () {
     var Jig = require('jig.js');
 
     // Tests
-    /*
      it('should create namespace', function () {
 
      Jig.create('Test.Namespace', {});
@@ -10,7 +9,7 @@ describe('jig create test', function () {
      assert.notEqual(typeof Test, 'undefined', 'Global namespace was created');
      assert.notEqual(typeof Test.Namespace, 'undefined', 'Global deep namespace was created');
 
-     });*/
+     });
 
     it('should create prototype', function () {
 
@@ -84,6 +83,7 @@ describe('jig create test', function () {
         chai.assert.isFunction(myJig.staticFN, 'Static function was created');
     });
     it('should call setup and init', function () {
+
         var setupFn = sinon.spy();
         var initFn = sinon.spy();
         var MyJig = Jig.create({
@@ -120,5 +120,4 @@ describe('jig create test', function () {
         chai.assert.isFunction(MyChildJig.prototype.protoparent, 'Prototype function was inherited');
         chai.assert.isFunction(MyChildJig.child, 'Static function was created');
     });
-
 });

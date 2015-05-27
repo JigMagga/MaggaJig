@@ -16,8 +16,8 @@ describe('jig plugin test', function () {
                 console.log("TEST");
             }
         });
-
-        new Test.Namespace();
+        var test = new Test.Namespace();
+        //new Test.Namespace(); //TODO This should cause a 2nd TEST output.
     });
     it('Pass plugins in the jig', function () {
 
@@ -28,11 +28,14 @@ describe('jig plugin test', function () {
             }
         }, {});
 
-        var test = Test.Namespace();
+        var nspace; //When calling Test.Namespace(), test inherits from Test
+        nspace = Test.Namespace;//instead of from Namespace, because this=Test
+        var test = new nspace();
 
         chai.assert.isFunction(Test.Namespace.plugins.myPlug, 'Plugins were extended');
-        chai.assert.isFunction(test.myPlug, 'Plugins inherited a instatiation');
+        chai.assert.isFunction(test.plugins.myPlug, 'Plugins inherited a instatiation');
+        //or, if plugins are also static Methods:
+        //chai.assert.isFunction(test.myPlug, 'Plugins inherited a instatiation');
     });
-
 
 });

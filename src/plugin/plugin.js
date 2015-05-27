@@ -6,6 +6,9 @@
 
 
 module.exports = function plugin(hooks) {
+    /*eslint-disable */
+    extend = require('util')._extend;
+    /*eslint-enable */
     if (hooks.init) {
         hooks.init();
     }
