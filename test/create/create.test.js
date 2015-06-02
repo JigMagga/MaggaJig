@@ -117,6 +117,7 @@ describe('jig create test', function () {
         var path = require("path");
 
         var Handlebars = require("../../plugins/handlebars.js");
+        console.log(Handlebars);
         var templatesPath = "../examples/templates/handlebars.hbs";
         Jig.create('Test.Namespace', {
             defaults: {
