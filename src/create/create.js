@@ -19,6 +19,7 @@ module.exports = function create(namespace, statics, proto) {
         namespaces,
         i,
         len,
+        fn = function(){},
         tempGlobal = global;
 
     function extend(origin, add) {
@@ -50,7 +51,6 @@ module.exports = function create(namespace, statics, proto) {
 
     // create Jig constructor
     jig = function (defaults, plugins) {
-        // console.log("this in constructor Scope", this);
         // inherit static methods from this.
         extend(this, this.__proto__.constructor);
         /*eslint-disable */
@@ -74,7 +74,7 @@ module.exports = function create(namespace, statics, proto) {
         // in global. If not, create it, and assign last one to jig
         for (i = 0, len = namespaces.length - 1; i < len; i++) {
             if (!tempGlobal[namespaces[i]]) {
-                tempGlobal[namespaces[i]] = {};
+                tempGlobal[namespaces[i]] = fn;
             }
             tempGlobal = tempGlobal[namespaces[i]];
         }
@@ -91,8 +91,9 @@ module.exports = function create(namespace, statics, proto) {
     extend(jig, this);
     extend(jig, statics);
 
-    // make sure the is a plugins object
+    // make sure the is a plugins and defaults object
     jig.plugins = jig.plugins || {};
+    jig.defaults = jig.defaults || {};
 
     // inherit from parent Jig and add prototype methods to jig
     extend(jig.prototype, this.prototype);
@@ -102,5 +103,4 @@ module.exports = function create(namespace, statics, proto) {
     jig.init();
 
     return jig;
-}
-;
+};
