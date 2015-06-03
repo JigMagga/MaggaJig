@@ -1,24 +1,27 @@
-// plugin in Jig/plugins/handlebars.js
+Handlebars = require("handlebars");
 
 module.exports = {
     init: function(jig){
-        console.log("in-init");
         this.jig = jig;
     },
     render: function(data){
-        console.log("in-render");
-        //var b = browserify("./index.js");
         var templatePath = this.jig.defaults.view.template;
-        var template = require(templatePath);
-        var html = template({ name: "Epeli" });
-        console.log(html);
+        var elementName = this.jig.defaults.view.element;
 
         if (typeof process !== 'undefined' && ("" + process.title).search("node") !== -1) {
-            // node
+            var template = require(templatePath);
+            var html = template(data);
             // element will be a reference to a document
-            // this.jig.defaults.view.element.insert(result);
+            elementName.insert(html);
         }else{
-            document.querySelector(this.jig.defaults.view.element).insertHTML = result;
+            var templates = require("../build/js/templates.js");
+            var html = templates["MyApp"]["templates"]["handlebars"](data);
+
+            var element = document.createElement('div');
+            element.className += elementName.slice(1);
+            document.body.appendChild(element);
+
+            document.querySelector(elementName).innerHTML += html;
         }
     }
 };

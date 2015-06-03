@@ -7,8 +7,4 @@
 
 module.exports = function setup(defaults) {
 
-
-
-
-
 };

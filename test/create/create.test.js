@@ -111,35 +111,4 @@ describe('jig create test', function () {
         chai.assert.isFunction(MyChildJig.prototype.protoparent, 'Prototype function inherited');
         chai.assert.isFunction(MyChildJig.child, 'Static function was created');
     });
-
-    it.only('handlebars', function () {
-        var Jig = require('jig.js');
-        var path = require("path");
-
-        var Handlebars = require("../../plugins/handlebars.js");
-        console.log(Handlebars);
-        var templatesPath = "../examples/templates/handlebars.hbs";
-        Jig.create('Test.Namespace', {
-            defaults: {
-                view: {
-                    element: ".my-class",
-                    template: templatesPath
-                }
-            },
-            plugins: {
-                view: Handlebars
-            }
-        }, {
-            init: function () {
-                // that function gets called in instanciation with "new" operator
-                this.plugins.view.render(someDateForTheView);
-            }
-        });
-        var jigInstance = new Test.Namespace();
-        Handlebars.init(jigInstance);
-        Handlebars.render({
-            "name": "Alan", "hometown": "Somewhere, TX",
-            "kids": [{"name": "Jimmy", "age": "12"}, {"name": "Sally", "age": "4"}]
-        });
-    });
 });
