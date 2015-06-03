@@ -4,7 +4,8 @@ var Jig = require('jig.js');
 describe('handlebars', function () {
     it('handlebars', function () {
         var Jig = require('jig.js');
-        var template = "./../examples/templates/handlebars.hbs";
+        var template = "./../examples/templates/template.hbs";
+        var elementName = ".my-class";
         var viewData = {
             "name": "Alan", "hometown": "Somewhere, TX",
             "kids": [{"name": "Jimmy", "age": "12"}, {"name": "Sally", "age": "4"}]
@@ -12,7 +13,7 @@ describe('handlebars', function () {
         Jig.create('Test.Namespace', {
             defaults: {
                 view: {
-                    element: ".my-class",
+                    element: elementName,
                     template: template
                 }
             },
@@ -25,6 +26,7 @@ describe('handlebars', function () {
                 this.plugins.view.render(viewData);
             }
         });
+
         var jigInstance = new Test.Namespace();
         Handlebars.init(jigInstance);
         Handlebars.render(viewData);
