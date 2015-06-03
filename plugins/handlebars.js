@@ -12,11 +12,13 @@ module.exports = {
             var template = require(templatePath);
             var html = template(data);
             // element will be a reference to a document
-            elementName.insert(html);
+            // elementName.insert(html);
         }else{
             var templates = require("../build/js/templates.js");
-            var html = templates["MyApp"]["templates"]["handlebars"](data);
+            console.log(templates);
+            var html = templates.handlebars.template(data);
 
+            // creating an element in which the html block will be inserted
             var element = document.createElement('div');
             element.className += elementName.slice(1);
             document.body.appendChild(element);
