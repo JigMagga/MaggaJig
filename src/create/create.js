@@ -15,6 +15,7 @@
 
 module.exports = function create(namespace, statics, proto) {
     var EventEmitter = require('events').EventEmitter;
+    var ReactView = require('../viewLayer/reactView.js');
     var jig,
         namespaces,
         i,
@@ -51,7 +52,11 @@ module.exports = function create(namespace, statics, proto) {
 
     // create Jig constructor
     jig = function (defaults, plugins) {
+        // inherit prototype functions
+        extend(this, this.__proto__);
+        // remove init from former static methods
         // inherit static methods from this.
+        delete this.__proto__.constructor.init;
         extend(this, this.__proto__.constructor);
         /*eslint-disable */
         this._eventEmitter = new EventEmitter();
@@ -61,10 +66,18 @@ module.exports = function create(namespace, statics, proto) {
         this.plugins = extend({}, plugins);
         extend(this.plugins, this.constructor.plugins);
         this.emit('setup');
-        this.setup(defaults);
+        this.setup(this.defaults);
         this.emit('preInit');
         this.init();
         this.emit('postInit');
+
+        // upon call of render, activate the listener to 'jig_render', and pass
+        // the path of the desired react plugin to use.
+        // Then send event 'jig_render' and pass defaults object
+        this.render = function () {
+            ReactView(this, this.plugins.reactPath);
+            this.emit('jig_render', this.defaults);
+        };
     };
 
     // Arguments are ("namespace", {}, {},)
@@ -86,10 +99,18 @@ module.exports = function create(namespace, statics, proto) {
         this._eventEmitter.emit(event, data);
         /** eslint-enable **/
     };
+    jig.prototype.on = function (event, action) {
+        /**eslint-disable **/
+        this._eventEmitter.on(event, action);
+        /** eslint-enable **/
+    };
 
     // inherit from parent Jig and add static methods to jig
     extend(jig, this);
     extend(jig, statics);
+
+    // static init
+    //jig.init = jig.init || fn;
 
     // make sure the is a plugins and defaults object
     jig.plugins = jig.plugins || {};

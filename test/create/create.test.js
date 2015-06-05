@@ -111,4 +111,21 @@ describe('jig create test', function () {
         chai.assert.isFunction(MyChildJig.prototype.protoparent, 'Prototype function inherited');
         chai.assert.isFunction(MyChildJig.child, 'Static function was created');
     });
+    it('static init gets called at creation, prototype init at instatiation', function () {
+        Jig.create('Test.Namespace', {
+            init: function () {
+                this.test = 'static init';
+            }
+        }, {
+            init: function () {
+                this.test = 'prototype init';
+            }
+        });
+        // console.log();
+        assert.equal(new Test.Namespace.init().test, 'static init');
+        // Instantiate, next init should be prototype init
+        var myInstance = new Test.Namespace();
+        // console.log();
+        assert.equal(new myInstance.init().test, 'prototype init');
+    });
 });
