@@ -19,7 +19,8 @@ module.exports = function create(namespace, statics, proto) {
         namespaces,
         i,
         len,
-        fn = function(){},
+        fn = function () {
+        },
         tempGlobal = global;
 
     function extend(origin, add) {
@@ -29,6 +30,7 @@ module.exports = function create(namespace, statics, proto) {
         if (!add) {
             return origin;
         }
+        origin = origin || {};
         keys = Object.keys(add);
         z = keys.length;
         while (z--) {
@@ -51,19 +53,11 @@ module.exports = function create(namespace, statics, proto) {
 
     // create Jig constructor
     jig = function (defaults, plugins) {
-        // inherit prototype functions
-        extend(this, this.__proto__);
-        // remove init from former static methods
-        // inherit static methods from this.
-        delete this.__proto__.constructor.init;
-        extend(this, this.__proto__.constructor);
         /*eslint-disable */
         this._eventEmitter = new EventEmitter();
         /*eslint-enable */
-        this.defaults = extend({}, defaults);
-        extend(this.defaults, this.constructor.defaults);
-        this.plugins = extend({}, plugins);
-        extend(this.plugins, this.constructor.plugins);
+        this.defaults = extend(this.defaults, defaults);
+        this.plugins = extend(this.plugins, plugins);
         this.emit('setup');
         this.setup(this.defaults);
         this.emit('preInit');
@@ -91,6 +85,9 @@ module.exports = function create(namespace, statics, proto) {
         }
         tempGlobal[namespaces[namespaces.length - 1]] = jig;
     }
+    var Parent = function () {};
+    Parent.prototype = this;
+    jig.prototype = new Parent();
 
     jig.prototype.emit = function (event, data) {
         /**eslint-disable **/
@@ -107,15 +104,16 @@ module.exports = function create(namespace, statics, proto) {
     extend(jig, this);
     extend(jig, statics);
 
-    // static init
-    //jig.init = jig.init || fn;
-
-    // make sure the is a plugins and defaults object
+    // make sure the is a plugins, defaults object, and static init function
     jig.plugins = jig.plugins || {};
     jig.defaults = jig.defaults || {};
+    jig.init = jig.init || fn;
 
-    // inherit from parent Jig and add prototype methods to jig
-    extend(jig.prototype, this.prototype);
+    // inherit static and  prototype methods from parent Jig (except static init)
+    if (statics) {
+        delete  statics.init;
+    }
+    extend(jig.prototype, statics);
     extend(jig.prototype, proto);
 
     jig.setup();
