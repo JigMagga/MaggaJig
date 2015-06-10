@@ -15,7 +15,6 @@
 
 module.exports = function create(namespace, statics, proto) {
     var EventEmitter = require('events').EventEmitter;
-    var ReactView = require('../viewLayer/reactView.js');
     var jig,
         namespaces,
         i,
@@ -71,11 +70,10 @@ module.exports = function create(namespace, statics, proto) {
         this.init();
         this.emit('postInit');
 
-        // upon call of render, activate the listener to 'jig_render', and pass
-        // the path of the desired react plugin to use.
-        // Then send event 'jig_render' and pass defaults object
+        // upon call of render, activate the listener to 'jig_render',
+        // then send event 'jig_render' and pass defaults object
         this.render = function () {
-            ReactView(this, this.plugins.reactPath);
+            this.plugins.view(this);
             this.emit('jig_render', this.defaults);
         };
     };

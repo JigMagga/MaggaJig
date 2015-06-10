@@ -1,5 +1,4 @@
 var Handlebars = require('./../../plugins/handlebars');
-var Jig = require('jig.js');
 
 describe('handlebars', function () {
     it('handlebars', function () {

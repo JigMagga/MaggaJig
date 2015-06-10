@@ -1,4 +1,4 @@
-Handlebars = require("handlebars");
+Handlebars = require('handlebars');
 
 module.exports = {
     init: function(jig){
