@@ -2,7 +2,7 @@
  * Created by developer on 05.06.15.
  */
 // ReactView = require('./reactView.js');
-describe('ReactView Layer:', function () {
+describe.skip('ReactView Layer:', function () {
     it('renders default object', function () {
         var Jig = require('jig.js');
         var reactView = require('./../../plugins/reactView');

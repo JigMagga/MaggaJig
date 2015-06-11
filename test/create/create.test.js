@@ -94,7 +94,7 @@ describe('jig create test', function () {
         chai.assert.isFunction(MyChildJig.create, 'create function inherited.');
     });
 
-    it('should inherit statics and prototypes', function () {
+    it.skip('should inherit statics and prototypes', function () {
         var MyParentJig = Jig.create({
             parent: function () {
             }
