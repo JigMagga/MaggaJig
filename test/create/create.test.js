@@ -106,9 +106,10 @@ describe('jig create test', function () {
             child: function () {
             }
         }, {});
+        var instanceOfChild = new MyChildJig();
 
         chai.assert.isFunction(MyChildJig.parent, 'Static function was inherited');
-        chai.assert.isFunction(MyChildJig.prototype.protoparent, 'Prototype function inherited');
+        chai.assert.isFunction(instanceOfChild.prototype.protoparent, 'Prototype function inherited');
         chai.assert.isFunction(MyChildJig.child, 'Static function was created');
     });
     it('static init gets called at creation, prototype init at instatiation', function () {

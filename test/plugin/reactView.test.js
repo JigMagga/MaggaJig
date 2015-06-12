@@ -1,32 +1,45 @@
 /**
  * Created by developer on 05.06.15.
  */
-// ReactView = require('./reactView.js');
 describe('ReactView Layer:', function () {
     it('renders default object', function () {
         var Jig = require('jig.js');
-        var reactView = require('./../../plugins/reactView');
+        var React = require('react');
         var restaurantsInfo = { name: 'Ivy', location: 'Disneyland, FL'};
         // create element in DOM to insert new data.
         var elementName = '.react-test';
         var element = document.createElement('div');
-        var jigInstance;
         element.id = elementName.slice(1);
-        element.className += elementName.slice(1);
         document.body.appendChild(element);
         Jig.create('Test.Namespace', {
             defaults: {
                 view: {
+                    view: 'react-test',
                     element: element.id
                 },
-                restaurant: restaurantsInfo
+                restaurant: restaurantsInfo,
+                display: React.createClass ({
+                    displayName: 'Restaurants',
+                    render: function () {
+                        return (
+                            React.createElement('div', null,
+                                'The restaurant name is ', this.props.name,
+                                ', and its location is ', this.props.location)
+                        );
+                    }
+                })
             },
             plugins: {
-                view: reactView
+                view: require('./../../plugins/view/reactView')
             }
-        }, {});
-        jigInstance = new Test.Namespace();
-        jigInstance.render();
+        }, {
+            init: function () {
+                this.plugins.view.afterCreate(this);
+                this.plugins.view.init(this.defaults);
+            }
+        });
+        console.log('If test fails, make sure you have changed the path in plugins/view/reactView');
+        var jigRender = new Test.Namespace();
     });
 });
 

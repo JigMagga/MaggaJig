@@ -56,20 +56,13 @@ module.exports = function create(namespace, statics, proto) {
         /*eslint-disable */
         this._eventEmitter = new EventEmitter();
         /*eslint-enable */
-        this.defaults = extend(this.defaults, defaults);
-        this.plugins = extend(this.plugins, plugins);
+        this.defaults = extend(defaults, this.defaults);
+        this.plugins = extend(plugins, this.plugins);
         this.emit('setup');
         this.setup(this.defaults);
         this.emit('preInit');
         this.init();
         this.emit('postInit');
-
-        // upon call of render, activate the listener to 'jig_render',
-        // then send event 'jig_render' and pass defaults object
-        this.render = function () {
-            this.plugins.view(this);
-            this.emit('jig_render', this.defaults);
-        };
     };
 
     // Arguments are ("namespace", {}, {},)
