@@ -3,11 +3,30 @@ var Handlebars = require('./../../plugins/handlebars');
 describe('handlebars', function () {
     it('handlebars', function () {
         var Jig = require('jig.js');
-        var template = './../examples/templates/template.hbs';
-        var elementName = '.my-class';
+        var template = './../examples/templates/ChangeLog.hbs';
+        var elementName = '.changelog';
         var jigInstance;
         var viewData = {
-            kids: [{name: 'Jimmy', age: '12'}, {name: 'Sally', age: '4'}]
+            name: 'JigMagga',
+            changes: [
+                {
+                    version: "2.0.0",
+                    date: "11-June-2015",
+                    topics: [{
+                        name: "Core",
+                        features: [
+                            "New feature in the api",
+                            "Fixed Bug #f123"
+                        ]
+                    }, {
+                        name: "Plugins",
+                        features: [
+                            "ReactView plugin integrated",
+                            "Handlebars plugin integrated"
+                        ]
+                    }]
+                },
+            ]
         };
         Jig.create('Test.Namespace', {
             defaults: {
@@ -27,7 +46,5 @@ describe('handlebars', function () {
             }
         });
         jigInstance = new Test.Namespace();
-        Handlebars.init(jigInstance);
-        Handlebars.render(viewData);
     });
 });
