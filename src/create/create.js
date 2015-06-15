@@ -53,6 +53,7 @@ module.exports = function create(namespace, statics, proto) {
 
     // create Jig constructor
     jig = function (defaults, plugins) {
+        extend(this, proto);
         /*eslint-disable */
         this._eventEmitter = new EventEmitter();
         /*eslint-enable */
@@ -78,9 +79,9 @@ module.exports = function create(namespace, statics, proto) {
         }
         tempGlobal[namespaces[namespaces.length - 1]] = jig;
     }
-    var Parent = function () {};
-    Parent.prototype = this;
-    jig.prototype = new Parent();
+    //var Parent = function () {};
+    //Parent.prototype = this;
+    jig.prototype = new this();
 
     jig.prototype.emit = function (event, data) {
         /**eslint-disable **/
@@ -102,12 +103,11 @@ module.exports = function create(namespace, statics, proto) {
     jig.defaults = jig.defaults || {};
     jig.init = jig.init || fn;
 
-    // inherit static and  prototype methods from parent Jig (except static init)
+    // inherit static methods from parent Jig (except static init)
     if (statics) {
         delete  statics.init;
     }
     extend(jig.prototype, statics);
-    extend(jig.prototype, proto);
 
     jig.setup();
     jig.init();
