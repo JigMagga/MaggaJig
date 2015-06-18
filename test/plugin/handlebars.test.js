@@ -1,4 +1,4 @@
-var Handlebars = require('./../../plugins/handlebars');
+var Handlebars = require('./../../plugins/handlebars/handlebars');
 
 describe('handlebars', function () {
     it('handlebars', function () {

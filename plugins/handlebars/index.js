@@ -21,7 +21,7 @@ module.exports = {
             });
             console.log(newDistHtml);
         } else {
-            var templates = require("../build/js/templates.js");
+            var templates = require("../../build/js/templates.js");
             var fileName = templatePath.replace(/^.*[\\\/]/, '').split('.')[0];
             var renderedHtml = templates.handlebars[fileName](data);
 

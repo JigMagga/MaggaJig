@@ -1,26 +1,35 @@
 /**
- * [exports description]
- * @param  {object} hooks     Extra functions to be added in the jig.
+ * This function will execute a hook fn on all plugins of a jig.
+ *
+ * Example:
+ *
+ * plugins: {
+ *
+ *      examplePlugin: {
+ *              beforeCreate: function(){},
+ *              afterCreate: function(){},
+ *              beforeInit: function(){},
+ *              afterInit: function(){}
+ *      }
+ *
+ * }
+ *
+ *
+ * @param  {string} hooks     Extra functions to be added in the jig.
  * @return {function}         It returns the namespace with the hooks added.
  */
 
 
-module.exports = function plugin(hooks) {
-    /*eslint-disable */
-    extend = require('util')._extend;
-    /*eslint-enable */
-    extend(this.plugins, hooks);
+module.exports = function plugin(hook) {
+    var i,
+        objectKeys;
 
-    if (hooks.init) {
-        hooks.init();
-    }
-    if (hooks.setup) {
-        this.on('setup', hooks.setup);
-    }
-    if (hooks.preInit) {
-        this.on('preInit', hooks.preInit);
-    }
-    if (hooks.postInit) {
-        this.on('postInit', hooks.postInit);
+    if (typeof hook === "string") {
+        objectKeys = Object.keys(this.plugins || null);
+        for (i = 0; i < objectKeys.length; i++) {
+            if (typeof this.plugins[objectKeys[i]][hook] === "function") {
+                this.plugins[objectKeys[i]][hook](this, objectKeys[i]);
+            }
+        }
     }
 };

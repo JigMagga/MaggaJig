@@ -25,12 +25,15 @@ Jig.setup = require('./setup/setup.js');
  * [create description]
  * @type {[type]}
  */
-Jig.init = function () {
-
-};
+Jig.init = require('./init/init.js');
 
 /** @type {[type]} [description] */
 Jig.plugin = require('./plugin/plugin.js');
+
+
+
+// ***** Prototype ******
+
 
 /** @type {[type]} [description] */
 Jig.prototype.plugin = require('./plugin/plugin.js');
@@ -38,15 +41,13 @@ Jig.prototype.plugin = require('./plugin/plugin.js');
 /**
  *
  */
-Jig.prototype.setup = function () {
-
-};
+Jig.prototype.setup = require('./setup/setup.js');
 
 /**
  *
  */
-Jig.prototype.init = function () {
+Jig.prototype.init = require('./init/init.js');
 
-};
+
 
 module.exports = Jig;

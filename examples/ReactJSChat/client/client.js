@@ -37,7 +37,7 @@ Jig.create('Chat_jig', {
                         this.props.name, ' wrote ', this.props.text)
                 );
             }
-        }),
+        })
     },
     plugins: {
         view: require('./../../../plugins/view/reactView')
