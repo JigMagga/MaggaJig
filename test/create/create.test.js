@@ -148,13 +148,12 @@ describe('jig create test', function () {
                 }});
 
             var jigWithMixins = Jig.create({
-                mixins: [mixinJig]
-                /*init: function(){
-                    this.someStaticShareFunction();
-                }*/
+                mixins: [mixinJig],
+                init: function(){
+                    this.mixinJigStaticShareFunction();
+                }
                 }, {
                 init: function () {
-                    this.mixinJigStaticShareFunction();
                     this.mixinJigProtoShareFunction();
                 }});
             new jigWithMixins();

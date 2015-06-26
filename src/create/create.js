@@ -42,12 +42,8 @@ module.exports = function create(namespace, statics, proto) {
     function extendMixins(origin,mixins) {
         for (var i = 0; i < mixins.length; i++) {
             var mixinsToMerge = {};
-            // if the mixin is a jig
-            if(typeof mixins[i] === 'function'){
-                var jig = new mixins[i];
-                if(jig.constructor.name === 'Jig'){
-                    mixins[i] = jig;
-                }
+            if(mixins[i].prototype !== undefined){
+                mixins[i] = mixins[i].prototype;
             }
 
             for (var func in mixins[i]) {
@@ -56,8 +52,7 @@ module.exports = function create(namespace, statics, proto) {
                 }
             }
 
-            extend(origin, mixinsToMerge);
-
+            return extend(origin, mixinsToMerge);
         }
     }
 
@@ -81,10 +76,6 @@ module.exports = function create(namespace, statics, proto) {
         /*eslint-enable */
         this.defaults = extend(defaults, this.defaults);
         this.plugins = extend(plugins, this.plugins);
-
-        //static functions
-        if(this.mixins !== undefined)
-            extendMixins(this,this.mixins);
 
         this.emit('setup');
         this.setup(this.defaults);
@@ -127,11 +118,7 @@ module.exports = function create(namespace, statics, proto) {
     extend(jig, this);
     extend(jig, statics);
 
-    if(statics){
-        if(typeof statics.mixins !== 'undefined'){
-            extendMixins(jig, statics.mixins);
-        }
-    }
+
 
     // make sure the is a plugins, defaults object, and static init function
     jig.plugins = jig.plugins || {};
@@ -143,6 +130,13 @@ module.exports = function create(namespace, statics, proto) {
         delete  statics.init;
     }
     extend(jig.prototype, statics);
+
+    if(statics){
+        if(typeof statics.mixins !== 'undefined'){
+            extendMixins(jig, statics.mixins);
+            delete jig.mixins;
+        }
+    }
 
     jig.setup();
     jig.init();
