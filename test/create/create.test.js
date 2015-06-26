@@ -97,6 +97,7 @@ describe('jig create test', function () {
         chai.assert.isFunction(instanceOfChild.protoparent, 'Prototype function inherited');
         chai.assert.isFunction(MyChildJig.child, 'Static function was created');
     });
+
     it('static init gets called at creation, prototype init at instatiation', function () {
         Jig.create('Test.Namespace', {
             init: function () {
@@ -114,4 +115,50 @@ describe('jig create test', function () {
         // console.log();
         assert.equal(new myInstance.init().test, 'prototype init');
     });
+
+    describe('create with mixins', function () {
+        it('should create with some shared functions', function(){
+            var someComponent = {
+                fooShareFunction: function(){ console.log("Hello foo ShareFunction") },
+                barShareFunction: function(){ console.log("Hello bar ShareFunction") }
+            };
+            Jig.create('Test.Namespace',{
+                mixins: [someComponent],
+            },{
+                init: function(){
+                    this.fooShareFunction();
+                    this.barShareFunction();
+                },
+                fooShareFunction : function(){
+                    console.log("Hello foo ShareFunction should not be overwritten");
+                },
+                fooFunction : function(){
+                    console.log("Hello foo Function");
+                }
+            });
+            jigInstance = new Test.Namespace();
+        });
+        it('should create with some static-shared functions from a jig', function(){
+            var mixinJig = Jig.create({
+                mixinJigStaticShareFunction: function () {
+                    console.log("Hello mixinJig Static ShareFunction");
+                }}, {
+                mixinJigProtoShareFunction: function(){
+                    console.log("Hello mixinJig Proto ShareFunction");
+                }});
+
+            var jigWithMixins = Jig.create({
+                mixins: [mixinJig]
+                /*init: function(){
+                    this.someStaticShareFunction();
+                }*/
+                }, {
+                init: function () {
+                    this.mixinJigStaticShareFunction();
+                    this.mixinJigProtoShareFunction();
+                }});
+            new jigWithMixins();
+        });
+    });
+
 });

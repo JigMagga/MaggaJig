@@ -39,6 +39,28 @@ module.exports = function create(namespace, statics, proto) {
         return origin;
     }
 
+    function extendMixins(origin,mixins) {
+        for (var i = 0; i < mixins.length; i++) {
+            var mixinsToMerge = {};
+            // if the mixin is a jig
+            if(typeof mixins[i] === 'function'){
+                var jig = new mixins[i];
+                if(jig.constructor.name === 'Jig'){
+                    mixins[i] = jig;
+                }
+            }
+
+            for (var func in mixins[i]) {
+                if (typeof origin[func] === 'undefined') {
+                    mixinsToMerge[func] = mixins[i][func];
+                }
+            }
+
+            extend(origin, mixinsToMerge);
+
+        }
+    }
+
     // Find out which arguments are given
     if (typeof proto === 'undefined') {
         // Arguments are ("namespace", {}), or ({},{})
@@ -59,6 +81,11 @@ module.exports = function create(namespace, statics, proto) {
         /*eslint-enable */
         this.defaults = extend(defaults, this.defaults);
         this.plugins = extend(plugins, this.plugins);
+
+        //static functions
+        if(this.mixins !== undefined)
+            extendMixins(this,this.mixins);
+
         this.emit('setup');
         this.setup(this.defaults);
         this.emit('preInit');
@@ -79,6 +106,7 @@ module.exports = function create(namespace, statics, proto) {
         }
         tempGlobal[namespaces[namespaces.length - 1]] = jig;
     }
+
     //var Parent = function () {};
     //Parent.prototype = this;
     jig.prototype = new this();
@@ -95,8 +123,15 @@ module.exports = function create(namespace, statics, proto) {
     };
 
     // inherit from parent Jig and add static methods to jig
+
     extend(jig, this);
     extend(jig, statics);
+
+    if(statics){
+        if(typeof statics.mixins !== 'undefined'){
+            extendMixins(jig, statics.mixins);
+        }
+    }
 
     // make sure the is a plugins, defaults object, and static init function
     jig.plugins = jig.plugins || {};
