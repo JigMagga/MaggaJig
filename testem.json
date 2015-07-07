@@ -16,8 +16,7 @@
     "on_exit": "rm test/browserified.js",
     "launch_in_dev": [
         "node",
-        "chrome",
-        "firefox"
+        "chrome"
     ],
     "launch_in_ci": ["node"]
 }

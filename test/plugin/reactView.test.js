@@ -31,7 +31,7 @@ describe('ReactView Layer:', function () {
                 })
             },
             plugins: {
-                view: require('./../../plugins/view/reactView')
+                view: require('./../../plugins/react/index.js')
             }
         }, {
             init: function () {
