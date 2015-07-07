@@ -25,10 +25,12 @@ module.exports = function plugin(hook) {
         objectKeys;
 
     if (typeof hook === "string") {
-        objectKeys = Object.keys(this.plugins || null);
-        for (i = 0; i < objectKeys.length; i++) {
-            if (typeof this.plugins[objectKeys[i]][hook] === "function") {
-                this.plugins[objectKeys[i]][hook](this, objectKeys[i]);
+        if (this.plugins) {
+            objectKeys = Object.keys(this.plugins);
+            for (i = 0; i < objectKeys.length; i++) {
+                if (typeof this.plugins[objectKeys[i]][hook] === "function") {
+                    this.plugins[objectKeys[i]][hook](this, objectKeys[i]);
+                }
             }
         }
     }
