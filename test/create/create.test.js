@@ -24,24 +24,9 @@ describe('jig create test', function () {
                 console.log(2);
             }
         });
-        /*test2 = new Test.Namespace({
-         view: function () {
-         console.log(2);
-         }
-         });
-         var test3 = new Object(function a() {
-         console.log(3);
-         });
-         var test4 = new Object(function a() {
-         console.log(3);
-         });
-
-         chai.expect(testInstance).to.eql(test2); //false
-         chai.expect(test3).to.equal(test4); //also false*/
         chai.assert.isFunction(testInstance.prototypefn, 'Prototype function was created');
         chai.assert.isFunction(testInstance.defaults.view, 'Defaults object merged');
         chai.assert.isNotFunction(Test.Namespace.prototypefn, 'Prototypefn not assigned as static');
-        chai.assert.isFunction(Test.Namespace.prototype.prototypefn, 'Prototype func was created');
     });
 
     it('should work with deep namespace', function () {
@@ -106,9 +91,10 @@ describe('jig create test', function () {
             child: function () {
             }
         }, {});
+        var instanceOfChild = new MyChildJig();
 
         chai.assert.isFunction(MyChildJig.parent, 'Static function was inherited');
-        chai.assert.isFunction(MyChildJig.prototype.protoparent, 'Prototype function inherited');
+        chai.assert.isFunction(instanceOfChild.protoparent, 'Prototype function inherited');
         chai.assert.isFunction(MyChildJig.child, 'Static function was created');
     });
     it('static init gets called at creation, prototype init at instatiation', function () {

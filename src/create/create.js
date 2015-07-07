@@ -14,30 +14,11 @@
 
 
 module.exports = function create(namespace, statics, proto) {
-    var EventEmitter = require('events').EventEmitter;
     var jig,
         namespaces,
         i,
         len,
-        fn = function () {
-        },
-        tempGlobal = global;
-
-    function extend(origin, add) {
-        var keys,
-            z;
-        // Do nothing if add is undefined
-        if (!add) {
-            return origin;
-        }
-        origin = origin || {};
-        keys = Object.keys(add);
-        z = keys.length;
-        while (z--) {
-            origin[keys[z]] = add[keys[z]];
-        }
-        return origin;
-    }
+        tempGlobal = global || window;
 
     // Find out which arguments are given
     if (typeof proto === 'undefined') {
@@ -53,23 +34,11 @@ module.exports = function create(namespace, statics, proto) {
 
     // create Jig constructor
     jig = function (defaults, plugins) {
-        /*eslint-disable */
-        this._eventEmitter = new EventEmitter();
-        /*eslint-enable */
+        this.plugin('beforeInit');
         this.defaults = extend(this.defaults, defaults);
         this.plugins = extend(this.plugins, plugins);
-        this.emit('setup');
-        this.setup(this.defaults);
-        this.emit('preInit');
         this.init();
-        this.emit('postInit');
-
-        // upon call of render, activate the listener to 'jig_render',
-        // then send event 'jig_render' and pass defaults object
-        this.render = function () {
-            this.plugins.view(this);
-            this.emit('jig_render', this.defaults);
-        };
+        this.plugin('afterInit');
     };
 
     // Arguments are ("namespace", {}, {},)
@@ -79,45 +48,56 @@ module.exports = function create(namespace, statics, proto) {
         // in global. If not, create it, and assign last one to jig
         for (i = 0, len = namespaces.length - 1; i < len; i++) {
             if (!tempGlobal[namespaces[i]]) {
-                tempGlobal[namespaces[i]] = fn;
+                tempGlobal[namespaces[i]] = {};
             }
             tempGlobal = tempGlobal[namespaces[i]];
         }
         tempGlobal[namespaces[namespaces.length - 1]] = jig;
     }
-    var Parent = function () {};
-    Parent.prototype = this;
-    jig.prototype = new Parent();
 
-    jig.prototype.emit = function (event, data) {
-        /**eslint-disable **/
-        this._eventEmitter.emit(event, data);
-        /** eslint-enable **/
-    };
-    jig.prototype.on = function (event, action) {
-        /**eslint-disable **/
-        this._eventEmitter.on(event, action);
-        /** eslint-enable **/
-    };
 
     // inherit from parent Jig and add static methods to jig
     extend(jig, this);
     extend(jig, statics);
+    jig.plugin("beforeCreate");
 
-    // make sure the is a plugins, defaults object, and static init function
-    jig.plugins = jig.plugins || {};
-    jig.defaults = jig.defaults || {};
-    jig.init = jig.init || fn;
-
-    // inherit static and  prototype methods from parent Jig (except static init)
-    if (statics) {
-        delete  statics.init;
-    }
-    extend(jig.prototype, statics);
+    // inheritance prototype
+    jig.prototype = Object.create(this.prototype);
     extend(jig.prototype, proto);
+    // super prototype
+    jig.prototype._super = this;
+
+    // make sure there is a plugins, defaults object, and static init function
+    jig.prototype.plugins   = jig.plugins   = jig.plugins || {};
+    jig.prototype.defaults  = jig.defaults  = jig.defaults || {};
+
 
     jig.setup();
     jig.init();
+    jig.plugin("afterCreate");
 
     return jig;
 };
+
+
+/**
+ * Extend helper
+ * @param origin
+ * @param add
+ * @returns {*}
+ */
+function extend(origin, add) {
+    var keys,
+        z;
+    // Do nothing if add is undefined
+    if (!add) {
+        return origin;
+    }
+    origin = origin || {};
+    keys = Object.keys(add);
+    z = keys.length;
+    while (z--) {
+        origin[keys[z]] = add[keys[z]];
+    }
+    return origin;
+}

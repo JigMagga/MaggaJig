@@ -3,7 +3,7 @@
  */
 // Jig that displays time;
 
-var Jig = require('../jig.js');
+var Jig = require('../../src/jig.js');
 var timeStatics,
     yearStatics,
     d;
