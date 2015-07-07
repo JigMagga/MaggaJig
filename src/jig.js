@@ -90,9 +90,9 @@ function extend() {
 
 var Jig = Object.create({
      create: function(namespace, statics, instance) {
-         var globalRef, jigConstructor;
+         var ref, jigConstructor;
 
-         globalRef = global || window;
+         ref = global || window;
 
          // prepare arguments
          if (typeof instance === 'undefined') {
@@ -117,18 +117,6 @@ var Jig = Object.create({
              }
          }
 
-         if (namespace) {
-             jigConstructor = globalRef;
-             // build a reference on jig constructor if 'some.nested.namespace' provided then
-             // build object some.nested.namespace if it partially exist then reuse it
-             jigConstructor = namespace.split('.').reduce(function(prev, item ){
-                 if (!jigConstructor[item]) {
-                     jigConstructor[item] = {};
-                 }
-                 return jigConstructor[item];
-             }, jigConstructor);
-         }
-
          var F = function(){
          };
          F.prototype = Jig;
@@ -145,7 +133,23 @@ var Jig = Object.create({
          };
          jigConstructor.prototype = new F();
          jigConstructor.prototype.constructor = jigConstructor;
-         jigConstructor.static = statics;
+         extend(true, jigConstructor, statics);
+
+         // namespace
+         if (namespace) {
+             // build a reference on jig constructor if 'some.nested.namespace' provided then
+             // build object some.nested.namespace if it partially exist then reuse it
+             namespace.split('.').reduce(function(prev, item ){
+                 if (!prev[item]) {
+                     prev[item] = {};
+                 }
+                 ref = prev;
+                 name = item;
+                 return prev[item];
+             }, ref);
+             ref[name] = jigConstructor;
+         }
+
          return jigConstructor;
      }
 }
