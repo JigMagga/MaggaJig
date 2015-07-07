@@ -15,14 +15,14 @@ module.exports = {
             // elementName.insert(html);
         }else{
             var templates = require("../build/js/templates.js");
-            console.log(templates);
             var html = templates.handlebars.template(data);
-
             // creating an element in which the html block will be inserted
-            var element = document.createElement('div');
-            element.className += elementName.slice(1);
-            document.body.appendChild(element);
-
+            var element = document.querySelector(elementName);
+            if (element === null) {
+                element = document.createElement('div');
+                element.className += elementName.slice(1);
+                document.body.appendChild(element);
+            }
             document.querySelector(elementName).innerHTML += html;
         }
     }
