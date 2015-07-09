@@ -4,7 +4,7 @@
  * Changes
  *
  * 1. No checking for plain object (see jquery.isPlainObject)
- * 2. dont uses jQuery function isArray
+ * 2. dont uses jQuery functions
  *
  * */
 
@@ -25,7 +25,7 @@ function extend() {
     }
 
     // Handle case when target is a string or something (possible in deep copy)
-    if (typeof target !== "object") {
+    if (typeof target !== "object" && deep) {
         target = {};
     }
 
@@ -49,11 +49,11 @@ function extend() {
                 }
 
                 // Recurse if we're merging plain objects or arrays
-                if (deep && copy && (typeof copy === "object") && (copy !== null) || (copyIsArray = Array.prototype.isArray(copy))) {
+                if (deep && copy && (typeof copy === "object") && (copy !== null) || (copyIsArray = Array.isArray(copy))) {
 
                     if (copyIsArray) {
                         copyIsArray = false;
-                        clone = src && Array.prototype.isArray(src) ? src : [];
+                        clone = src && Array.isArray(src) ? src : [];
 
                     } else {
                         clone = src && ((typeof src === "object") && (src !== null)) ? src : {};
@@ -73,6 +73,36 @@ function extend() {
     // Return the modified object
     return target;
 }
+/*
+ * From Douglas Crockford
+ *
+ * */
+
+function inherits(Child, Parent) {
+    var F = function() { };
+    F.prototype = Parent.prototype;
+    Child.prototype = new F()
+    Child.prototype.constructor = Child;
+    Child.superclass = Parent.prototype;
+}
+
+/*
+ * Adopted from javascript.ru
+ *
+ * */
+
+function mixin(dst, src){
+    var tobj = {};
+    for(var x in src){
+        // also we ignore superclass property altogether with Object properties
+        if (src.hasOwnProperty(x) && x !=='superclass') {
+            if((typeof tobj[x] == "undefined") || (tobj[x] != src[x])){
+                dst[x] = src[x];
+            }
+        }
+    }
+}
+
 
 /**
  * Creates a namespace for a jig with statics as static methods,
@@ -88,72 +118,84 @@ function extend() {
  *    "namespace" can be a concatenation of strings (deep namespace)
  **/
 
-var Jig = Object.create({
-     create: function(namespace, statics, instance) {
-         var ref, jigConstructor;
+var Jig = Object.create(Object,{
+    create: {
+        enumerable: true,
+        value: function (namespace, statics, instance) {
+            var ref, jigConstructor;
 
-         ref = global || window;
+            // prepare arguments
+            if (typeof instance === 'undefined') {
+                if (typeof namespace === 'string') {
+                    // ("namespace", {}) -> Object is proto
+                    instance = statics;
+                    statics = {};
+                }
+                else {
+                    if (typeof statics === 'undefined') {
+                        // ({}) -> proto
+                        instance = namespace;
+                        statics = {};
+                        namespace = null;
+                    }
+                    else {
+                        // ({},{}) -> statics and proto.
+                        instance = statics;
+                        statics = namespace;
+                        namespace = null;
+                    }
+                }
+            }
 
-         // prepare arguments
-         if (typeof instance === 'undefined') {
-             if (typeof namespace === 'string') {
-                 // ("namespace", {}) -> Object is proto
-                 instance = statics;
-                 statics = {};
-             }
-             else {
-                 if (typeof statics === 'undefined') {
-                     // ({}) -> proto
-                     instance = namespace;
-                     statics = {};
-                     namespace = null;
-                 }
-                 else {
-                     // ({},{}) -> statics and proto.
-                     instance = statics;
-                     statics = namespace;
-                     namespace = null;
-                 }
-             }
-         }
+            // constructor
+            jigConstructor = function(runtimeInstance){
 
-         var F = function(){
-         };
-         F.prototype = Jig;
-         F.prototype.extend = extend;
+                jigConstructor.superclass.constructor.call(this);
 
-         extend(true, F.prototype, statics);
+                //extend(this, jigConstructor.prototype._savedInstance);
+                extend(this, instance);
+                extend(true, this,{
+                    defaults: runtimeInstance
+                });
 
-         // constructor
-         jigConstructor = function(runtimeInstance){
-             this.extend(true, instance, runtimeInstance);
-             if (typeof this.init === 'function') {
-                 this.init();
-             }
-         };
-         jigConstructor.prototype = new F();
-         jigConstructor.prototype.constructor = jigConstructor;
-         extend(true, jigConstructor, statics);
 
-         // namespace
-         if (namespace) {
-             // build a reference on jig constructor if 'some.nested.namespace' provided then
-             // build object some.nested.namespace if it partially exist then reuse it
-             namespace.split('.').reduce(function(prev, item ){
-                 if (!prev[item]) {
-                     prev[item] = {};
-                 }
-                 ref = prev;
-                 name = item;
-                 return prev[item];
-             }, ref);
-             ref[name] = jigConstructor;
-         }
+                if (typeof this.setup === 'function') {
+                    this.setup();
+                }
 
-         return jigConstructor;
-     }
-}
-);
+                if (typeof this.init === 'function') {
+                    this.init();
+                }
+            };
+
+            // add inheritance for proper prototype chain.
+            inherits(jigConstructor,this);
+            extend(true, jigConstructor.prototype, statics);
+
+            // move all properties of parent constructor to child constructor
+            mixin(jigConstructor, this);
+            extend(jigConstructor, statics);
+
+            // namespace
+            if (namespace) {
+                ref = global || window;
+                // build a reference on jig constructor if 'some.nested.namespace' provided then
+                // build object some.nested.namespace if it partially exist then reuse it
+                namespace.split('.').reduce(function(prev, item ){
+                    if (!prev[item]) {
+                        prev[item] = {};
+                    }
+                    ref = prev;
+                    name = item;
+                    return prev[item];
+                }, ref);
+                ref[name] = jigConstructor;
+            }
+            return jigConstructor;
+        }
+    }
+});
+
 
 /**
  * [create description]
@@ -175,7 +217,7 @@ var Jig = Object.create({
 //Jig.init = require('./init/init.js');
 
 /** @type {[type]} [description] */
-//Jig.plugin = require('./plugin/plugin.js');
+Jig.plugin = require('./plugin/plugin.js');
 
 
 
@@ -194,7 +236,5 @@ var Jig = Object.create({
  *
  */
 //Jig.prototype.init = require('./init/init.js');
-
-
 
 module.exports = Jig;

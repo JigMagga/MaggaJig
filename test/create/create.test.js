@@ -1,4 +1,4 @@
-describe.only('jig create test', function () {
+describe('jig create test', function () {
     var Jig = require('jig.js');
 
     // Tests
