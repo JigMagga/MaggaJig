@@ -153,7 +153,7 @@ var Jig = Object.create(Object,{
                 jigConstructor.superclass.constructor.call(this);
 
                 //extend(this, jigConstructor.prototype._savedInstance);
-                extend(this, instance);
+                extend(true, this, instance);
 
                 // taking  and extending "defaults" from prototype
                 this.defaults = this.defaults || {};
