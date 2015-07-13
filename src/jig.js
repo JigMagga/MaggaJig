@@ -154,10 +154,10 @@ var Jig = Object.create(Object,{
 
                 //extend(this, jigConstructor.prototype._savedInstance);
                 extend(this, instance);
-                extend(true, this,{
-                    defaults: runtimeInstance
-                });
 
+                // taking  and extending "defaults" from prototype
+                this.defaults = this.defaults || {};
+                extend(true, this.defaults, runtimeInstance);
 
                 if (typeof this.setup === 'function') {
                     this.setup();
