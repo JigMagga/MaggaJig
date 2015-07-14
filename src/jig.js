@@ -156,8 +156,7 @@ var Jig = Object.create(Object,{
                 extend(true, this, instance);
 
                 // taking  and extending "defaults" from prototype
-                this.defaults = this.defaults || {};
-                extend(true, this.defaults, runtimeInstance);
+                this.defaults = extend(true, {}, this.defaults, runtimeInstance);
 
                 if (typeof this.setup === 'function') {
                     this.setup();

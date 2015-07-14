@@ -1,0 +1,1 @@
+console.error("Error: Cannot find module '/home/jaroslav/repos/MaggaJig/index.js' from '/home/jaroslav/repos/MaggaJig'");
