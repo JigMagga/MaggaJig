@@ -158,13 +158,8 @@ var Jig = Object.create(Object,{
                 // taking  and extending "defaults" from prototype
                 this.defaults = extend(true, {}, this.defaults, runtimeInstance);
 
-                if (typeof this.setup === 'function') {
-                    this.setup();
-                }
+                return this;
 
-                if (typeof this.init === 'function') {
-                    this.init();
-                }
             };
 
             // add inheritance for proper prototype chain.
@@ -190,7 +185,31 @@ var Jig = Object.create(Object,{
                 }, ref);
                 ref[name] = jigConstructor;
             }
+
+            if (typeof jigConstructor.init === 'function') {
+                jigConstructor.init();
+            }
+
             return jigConstructor;
+        }
+    },
+    newInstance: {
+        enumerable: true,
+        value: function () {
+            var constructor = this,
+                instance;
+
+            // TODO: make it possible to start with any number of arguments
+            instance = new constructor(arguments[0]);
+
+            if (typeof instance.setup === 'function') {
+                instance.setup();
+            }
+
+            if (typeof instance.init === 'function') {
+                instance.init();
+            }
+            return instance;
         }
     }
 });
