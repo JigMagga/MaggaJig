@@ -150,7 +150,7 @@ var Jig = Object.create(Object,{
             // constructor
             jigConstructor = function(runtimeInstance){
 
-                jigConstructor.superclass.constructor.call(this);
+                jigConstructor.superclass.constructor.call(this,runtimeInstance);
 
                 //extend(this, jigConstructor.prototype._savedInstance);
                 extend(true, this, instance);
