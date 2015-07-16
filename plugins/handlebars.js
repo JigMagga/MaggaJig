@@ -8,11 +8,14 @@ module.exports = {
             html = template(data),
             element = document.querySelector(elementName);
 
-        if (element === null) {
-            element = document.createElement('div');
-            element.className = elementName.slice(1);
-            document.body.appendChild(element);
+        if (!(typeof process !== 'undefined' && ("" + process.title).search("node") !== -1)) {
+
+            if (element === null) {
+                element = document.createElement('div');
+                element.className = elementName.slice(1);
+                document.body.appendChild(element);
+            }
+            document.querySelector(elementName).innerHTML = html;
         }
-        document.querySelector(elementName).innerHTML = html;
     }
 };
