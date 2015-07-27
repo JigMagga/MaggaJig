@@ -14,7 +14,7 @@ module.exports = {
             // element will be a reference to a document
             // elementName.insert(html);
         }else{
-            var templates = require("../build/js/templates.js");
+            var templates = require("../build/js/templates");
             var html = templates.handlebars.template(data);
             // creating an element in which the html block will be inserted
             var element = document.querySelector(elementName);
