@@ -2,7 +2,7 @@
  * Created by developer on 05.06.15.
  */
 // ReactView = require('./reactView.js');
-describe('ReactView Layer:', function () {
+describe.skip('ReactView Layer:', function () {
     it('renders default object', function () {
         var Jig = require('jig.js');
         var React = require('react');
@@ -35,8 +35,6 @@ describe('ReactView Layer:', function () {
             }
         }, {
             init: function () {
-                this.plugins.view.afterCreate(this);
-                this.plugins.view.init(this.defaults);
             }
         });
         console.log('If test fails, go to plugins/view/reactView and choose reactComponent');

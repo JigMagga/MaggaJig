@@ -36,9 +36,12 @@ module.exports = function create(namespace, statics, proto) {
 
     // create Jig constructor
     jig = function (defaults, plugins) {
-        this.plugin('beforeInit');
         this.defaults = extend(this.defaults, defaults);
         this.plugins = extend(this.plugins, plugins);
+        this.plugin('beforeInit');
+        if (this.setup() === false) {
+            return;
+        }
         this.init();
         this.plugin('afterInit');
     };

@@ -1,7 +1,7 @@
 var Handlebars = require('./../../plugins/handlebars.js');
 
 describe('handlebars', function () {
-    it('handlebars', function () {
+    it.skip('handlebars', function () {
         var Jig = require('jig.js');
         var template = './../examples/templates/ChangeLog.hbs';
         var elementName = '.changelog';
@@ -10,22 +10,22 @@ describe('handlebars', function () {
             name: 'JigMagga',
             changes: [
                 {
-                    version: "2.0.0",
-                    date: "11-June-2015",
+                    version: '2.0.0',
+                    date: '11-June-2015',
                     topics: [{
-                        name: "Core",
+                        name: 'Core',
                         features: [
-                            "New feature in the api",
-                            "Fixed Bug #f123"
+                            'New feature in the api',
+                            'Fixed Bug #f123'
                         ]
                     }, {
-                        name: "Plugins",
+                        name: 'Plugins',
                         features: [
-                            "ReactView plugin integrated",
-                            "Handlebars plugin integrated"
+                            'ReactView plugin integrated',
+                            'Handlebars plugin integrated'
                         ]
                     }]
-                },
+                }
             ]
         };
         Jig.create('Test.Namespace', {

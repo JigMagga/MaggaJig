@@ -9,7 +9,6 @@ module.exports = {
             element = document.querySelector(elementName);
 
         if (!(typeof process !== 'undefined' && ("" + process.title).search("node") !== -1)) {
-
             if (element === null) {
                 element = document.createElement('div');
                 element.className = elementName.slice(1);
