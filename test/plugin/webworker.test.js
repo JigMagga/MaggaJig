@@ -39,7 +39,7 @@ var TestJig = Jig.create({
 
 // Test
 
-describe.only('WebWorker:', function () {
+describe.skip('WebWorker:', function () {
     it('runs jig in worker', function () {
         var instance1 = new TestJig({
             num1: 2,

@@ -121,26 +121,26 @@ function mixin(dst, src){
 var Jig = Object.create(Object,{
     create: {
         enumerable: true,
-        value: function (namespace, statics, instance) {
+        value: function (namespace, statics, prototype) {
             var ref, jigConstructor;
 
             // prepare arguments
-            if (typeof instance === 'undefined') {
+            if (typeof prototype === 'undefined') {
                 if (typeof namespace === 'string') {
                     // ("namespace", {}) -> Object is proto
-                    instance = statics;
+                    prototype = statics;
                     statics = {};
                 }
                 else {
                     if (typeof statics === 'undefined') {
                         // ({}) -> proto
-                        instance = namespace;
+                        prototype = namespace;
                         statics = {};
                         namespace = null;
                     }
                     else {
                         // ({},{}) -> statics and proto.
-                        instance = statics;
+                        prototype = statics;
                         statics = namespace;
                         namespace = null;
                     }
@@ -148,23 +148,27 @@ var Jig = Object.create(Object,{
             }
 
             // constructor
-            jigConstructor = function(runtimeInstance){
+            jigConstructor = function (runtimeInstance) {
+                var self = this;
 
-                jigConstructor.superclass.constructor.call(this,runtimeInstance);
-
-                //extend(this, jigConstructor.prototype._savedInstance);
-                extend(true, this, instance);
+                jigConstructor.superclass.constructor.call(self, runtimeInstance);
 
                 // taking  and extending "defaults" from prototype
-                this.defaults = extend(true, {}, this.defaults, runtimeInstance);
+                self.defaults = extend(true, {}, self.defaults, runtimeInstance);
 
-                return this;
+                if (typeof self.setup === 'function') {
+                    self.setup();
+                }
 
+                if (typeof self.init === 'function') {
+                    self.init();
+                }
+                return self;
             };
 
             // add inheritance for proper prototype chain.
             inherits(jigConstructor,this);
-            extend(true, jigConstructor.prototype, statics);
+            extend(true, jigConstructor.prototype, prototype);
 
             // move all properties of parent constructor to child constructor
             mixin(jigConstructor, this);
@@ -202,13 +206,6 @@ var Jig = Object.create(Object,{
             // TODO: make it possible to start with any number of arguments
             instance = new constructor(arguments[0]);
 
-            if (typeof instance.setup === 'function') {
-                instance.setup();
-            }
-
-            if (typeof instance.init === 'function') {
-                instance.init();
-            }
             return instance;
         }
     }

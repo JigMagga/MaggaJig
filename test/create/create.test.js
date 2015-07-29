@@ -65,7 +65,7 @@ describe('jig create test', function () {
         var MyJig = Jig.create({
             setup: setupFn,
             init: initFn
-        }, {});
+        });
         var testInstance = MyJig.newInstance();
 
         chai.expect(setupFn.called).to.be.true;
