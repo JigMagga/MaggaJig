@@ -1,6 +1,6 @@
 {
-    "name": "MaggaJig",
-    "version": "1.0.0",
+    "name": "magga-jig",
+    "version": "0.0.2",
     "description": "A Jig is a container for building components",
     "main": "src/export.js",
     "directories": {
