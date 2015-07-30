@@ -42,7 +42,6 @@ function extend() {
             for (name in options) {
                 src = target[name];
                 copy = options[name];
-
                 // Prevent never-ending loop
                 if (target === copy) {
                     continue;
@@ -153,16 +152,24 @@ var Jig = Object.create(Object,{
 
                 jigConstructor.superclass.constructor.call(self, runtimeInstance);
 
+                self.defaults = extend({}, statics.defaults);
+                self.plugins = extend({}, statics.plugins);
+                self.plugin('beforeInit');
                 // taking  and extending "defaults" from prototype
                 self.defaults = extend(true, {}, self.defaults, runtimeInstance);
 
                 if (typeof self.setup === 'function') {
-                    self.setup();
+                    // NOTE Jaroslav: I find this confusing.
+                    if (this.setup() === false) {
+                        return;
+                    }
                 }
 
                 if (typeof self.init === 'function') {
                     self.init();
                 }
+
+                self.plugin('afterInit');
                 return self;
             };
 
@@ -196,18 +203,6 @@ var Jig = Object.create(Object,{
 
             return jigConstructor;
         }
-    },
-    newInstance: {
-        enumerable: true,
-        value: function () {
-            var constructor = this,
-                instance;
-
-            // TODO: make it possible to start with any number of arguments
-            instance = new constructor(arguments[0]);
-
-            return instance;
-        }
     }
 });
 
@@ -232,7 +227,7 @@ var Jig = Object.create(Object,{
 //Jig.init = require('./init/init.js');
 
 /** @type {[type]} [description] */
-Jig.plugin = require('./plugin/plugin.js');
+//Jig.plugin = require('./plugin/plugin.js');
 
 
 
@@ -240,7 +235,7 @@ Jig.plugin = require('./plugin/plugin.js');
 
 
 /** @type {[type]} [description] */
-//Jig.prototype.plugin = require('./plugin/plugin.js');
+Jig.prototype.plugin = require('./plugin/plugin.js');
 
 /**
  *

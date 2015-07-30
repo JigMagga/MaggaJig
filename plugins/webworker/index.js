@@ -10,7 +10,7 @@ var webWorker = {
     afterCreate: function (self) {
         self.defaults._konstruktor = self;
     },
-    beforeInit: function (self) {
+    initWorker: function (self) {
         // copy jig as object and run new jig.constructor in workerHandler
         // Extension of defaults and plugins already done in main thread.
         var workerHandler = 'onmessage = function(e){\njig = ' + obj2Str(self, true) +

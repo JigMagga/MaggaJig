@@ -19,7 +19,7 @@ describe('jig create test', function () {
             prototypefn: function () {
             }
         });
-        testInstance = Test.Namespace.newInstance({
+        testInstance = new Test.Namespace({
             view: function () {
                 console.log(2);
             }
@@ -66,7 +66,7 @@ describe('jig create test', function () {
             setup: setupFn,
             init: initFn
         });
-        var testInstance = MyJig.newInstance();
+        var testInstance = new MyJig();
 
         chai.expect(setupFn.called).to.be.true;
         chai.expect(initFn.called).to.be.true;
@@ -91,7 +91,7 @@ describe('jig create test', function () {
             child: function () {
             }
         }, {});
-        var instanceOfChild = MyChildJig.newInstance();
+        var instanceOfChild = new MyChildJig();
 
         chai.assert.isFunction(MyChildJig.parent, 'Static function was inherited');
         chai.assert.isFunction(instanceOfChild.protoparent, 'Prototype function inherited');
@@ -112,6 +112,12 @@ describe('jig create test', function () {
         // Instantiate, next init should be prototype init
 //        var myInstance = new Test.Namespace();
         // console.log();
-        assert.equal(Test.Namespace.newInstance().test, 'prototype init');
+        assert.equal(new Test.Namespace().test, 'prototype init');
+    });
+    it('should call beforeInit and afterInit hooks of plugin', function () {
+        var jig = Jig.create({
+
+        })
+
     });
 });
