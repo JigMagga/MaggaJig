@@ -1,5 +1,5 @@
-var Jig = require('MaggaJig');
-var ReactView = require('MaggaJig/plugins/react');
+var Jig = require('magga-jig');
+var ReactView = require('magga-jig/plugins/react');
 
 module.exports = Jig.create({
     defaults: {
