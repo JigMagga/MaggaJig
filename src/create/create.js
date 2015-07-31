@@ -15,94 +15,196 @@
  **/
 
 
-module.exports = function create(namespace, statics, proto) {
-    var jig,
-        namespaces,
-        i,
-        len,
-        tempGlobal = global || window;
+module.exports = function (namespace, statics, prototype) {
+    var ref, jigConstructor;
 
-    // Find out which arguments are given
-    if (typeof proto === 'undefined') {
-        // Arguments are ("namespace", {}), or ({},{})
-        if (typeof statics !== 'undefined') {
-            proto = statics;
-            statics = typeof namespace === 'string' ? null : namespace;
-            // Argument is ({})
-        } else {
-            proto = namespace;
+    // prepare arguments
+    if (typeof prototype === 'undefined') {
+        if (typeof namespace === 'string') {
+            // ("namespace", {}) -> Object is proto
+            prototype = statics;
+            statics = {};
+        }
+        else {
+            if (typeof statics === 'undefined') {
+                // ({}) -> proto
+                prototype = namespace;
+                statics = {};
+                namespace = null;
+            }
+            else {
+                // ({},{}) -> statics and proto.
+                prototype = statics;
+                statics = namespace;
+                namespace = null;
+            }
         }
     }
 
-    // create Jig constructor
-    jig = function (defaults, plugins) {
-        this.defaults = extend(this.defaults, defaults);
-        this.plugins = extend(this.plugins, plugins);
-        this.plugin('beforeInit');
-        if (this.setup() === false) {
-            return;
+    // constructor
+    jigConstructor = function (runtimeInstance) {
+        var self = this;
+
+        jigConstructor._super.constructor.call(self, runtimeInstance);
+
+        // taking  and extending "defaults" from prototype and statics
+        self.defaults = extend(true, {}, statics.defaults,self.defaults, runtimeInstance);
+        // getting plugins from statics
+        self.plugins = extend({}, self.plugins, statics.plugins);
+
+        self.plugin('beforeInit');
+
+        if (typeof self.setup === 'function') {
+            // NOTE Jaroslav: I find this confusing.
+            if (this.setup() === false) {
+                return;
+            }
         }
-        this.init();
-        this.plugin('afterInit');
+
+        if (typeof self.init === 'function') {
+            self.init();
+        }
+
+        self.plugin('afterInit');
+        return self;
     };
 
-    // Arguments are ("namespace", {}, {},)
-    if (typeof namespace === 'string') {
-        namespaces = namespace.split('.');
-        // For every str in namespace, check if it is already a namespace
-        // in global. If not, create it, and assign last one to jig
-        for (i = 0, len = namespaces.length - 1; i < len; i++) {
-            if (!tempGlobal[namespaces[i]]) {
-                tempGlobal[namespaces[i]] = {};
+    // move all properties of parent constructor to child constructor
+    mixin(jigConstructor, this);
+    extend(jigConstructor, statics);
+
+    jigConstructor.plugin("beforeCreate");
+
+    // add inheritance for proper prototype chain.
+    inherits(jigConstructor,this);
+    extend(true, jigConstructor.prototype, prototype);
+
+    // namespace
+    if (namespace) {
+        ref = global || window;
+        // build a reference on jig constructor if 'some.nested.namespace' provided then
+        // build object some.nested.namespace if it partially exist then reuse it
+        namespace.split('.').reduce(function( prev, item ){
+            if (!prev[item]) {
+                prev[item] = {};
             }
-            tempGlobal = tempGlobal[namespaces[i]];
-        }
-        tempGlobal[namespaces[namespaces.length - 1]] = jig;
+            ref = prev;
+            name = item;
+            return prev[item];
+        }, ref);
+        ref[name] = jigConstructor;
     }
 
+    if (typeof jigConstructor.init === 'function') {
+        jigConstructor.init();
+    }
 
-    // inherit from parent Jig and add static methods to jig
-    extend(jig, this);
-    extend(jig, statics);
-    jig.plugin("beforeCreate");
+    jigConstructor.plugin("afterCreate");
 
-    // inheritance prototype
-    jig.prototype = Object.create(this.prototype);
-    extend(jig.prototype, proto);
-    // super prototype
-    jig.prototype._super = this;
-
-    // make sure there is a plugins, defaults object, and static init function
-    jig.prototype.plugins   = jig.plugins   = jig.plugins || {};
-    jig.prototype.defaults  = jig.defaults  = jig.defaults || {};
-
-
-    jig.setup();
-    jig.init();
-    jig.plugin("afterCreate");
-
-    return jig;
+    return jigConstructor;
 };
 
 
-/**
- * Extend helper
- * @param origin
- * @param add
- * @returns {*}
- */
-function extend(origin, add) {
-    var keys,
-        z;
-    // Do nothing if add is undefined
-    if (!add) {
-        return origin;
+/*
+ * Taken and adopted from jQuery.extend function
+ *
+ * Changes
+ *
+ * 1. No checking for plain object (see jquery.isPlainObject)
+ * 2. dont uses jQuery functions
+ *
+ * */
+
+
+function extend() {
+    var options, name, src, copy, copyIsArray, clone, target = arguments[0] || {},
+        i = 1,
+        length = arguments.length,
+        deep = false;
+
+    // Handle a deep copy situation
+    if (typeof target === "boolean") {
+        deep = target;
+
+        // Skip the boolean and the target
+        target = arguments[i] || {};
+        i++;
     }
-    origin = origin || {};
-    keys = Object.keys(add);
-    z = keys.length;
-    while (z--) {
-        origin[keys[z]] = add[keys[z]];
+
+    // Handle case when target is a string or something (possible in deep copy)
+    if (typeof target !== "object" && deep) {
+        target = {};
     }
-    return origin;
+
+    // Extend Jig itself if only one argument is passed
+    if (i === length) {
+        target = this;
+        i--;
+    }
+
+    for (; i < length; i++) {
+        // Only deal with non-null/undefined values
+        if ((options = arguments[i]) != null) {
+            // Extend the base object
+            for (name in options) {
+                src = target[name];
+                copy = options[name];
+                // Prevent never-ending loop
+                if (target === copy) {
+                    continue;
+                }
+
+                // Recurse if we're merging plain objects or arrays
+                if (deep && copy && (typeof copy === "object") && (copy !== null) || (copyIsArray = Array.isArray(copy))) {
+
+                    if (copyIsArray) {
+                        copyIsArray = false;
+                        clone = src && Array.isArray(src) ? src : [];
+
+                    } else {
+                        clone = src && ((typeof src === "object") && (src !== null)) ? src : {};
+                    }
+
+                    // Never move original objects, clone them
+                    target[name] = extend(deep, clone, copy);
+
+                    // Don't bring in undefined values
+                } else if (copy !== undefined) {
+                    target[name] = copy;
+                }
+            }
+        }
+    }
+
+    // Return the modified object
+    return target;
+}
+/*
+ * From Douglas Crockford
+ *
+ * */
+
+function inherits(Child, Parent) {
+    var F = function() { };
+    F.prototype = Parent.prototype;
+    Child.prototype = new F()
+    Child.prototype.constructor = Child;
+    Child._super = Parent.prototype;
+}
+
+/*
+ * Adopted from javascript.ru
+ *
+ * */
+
+function mixin(dst, src){
+    var tobj = {};
+    for(var x in src){
+        // also we ignore _super property altogether with Object properties
+        if (src.hasOwnProperty(x) && x !=='_super') {
+            if((typeof tobj[x] == "undefined") || (tobj[x] != src[x])){
+                dst[x] = src[x];
+            }
+        }
+    }
 }
