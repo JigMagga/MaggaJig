@@ -1,28 +1,34 @@
 /**
- * TODO rework that to nicer implementaion because Magga.Mediator could be placed on a other object as well like
+ * The event plugin will bind your events to a pub/sub object like the MaggaMediator.
+ * Your events should be descibe in your defaults
  *
- * Magga.publish and Magga.subscribe
- * In this case this fn will not work
+ * defaults {
  *
+ *      "eventname": "handler"
+ *
+ * }
+ *
+ * @param Mediator
+ * @return {{beforeInit: Function}}
  */
-var Magga = require("magga").getInstance();
-module.exports = {
-    beforeInit: function (jig) {
-    	var keys,
-    		len, i;
-       if(jig.defaults.events && Magga.Mediator){
-       		keys = Object.keys(jig.defaults.events);
-       		for(i = 0, len = keys.length; i < len; i++){
-       			if(typeof jig[jig.defaults.events[keys[i]]] === "function"){
-					(function(event){
-						// todo should use bind to keep scope
-		       			Magga.Mediator.subscribe(event, function(){
-		       				jig[jig.defaults.events[event]].apply(jig, arguments);
-		       			})
-
-					})(keys[i]);
-       			}
-       		}
-       }
-    }
+module.exports = function (Mediator) {
+    return {
+        beforeInit: function (jig) {
+            var keys,
+                len, i;
+            if (jig.defaults.events && Mediator) {
+                keys = Object.keys(jig.defaults.events);
+                for (i = 0, len = keys.length; i < len; i++) {
+                    if (typeof jig[jig.defaults.events[keys[i]]] === "function") {
+                        (function (event) {
+                            // todo should use bind to keep scope
+                            Mediator.subscribe(event, function () {
+                                jig[jig.defaults.events[event]].apply(jig, arguments);
+                            });
+                        })(keys[i]);
+                    }
+                }
+            }
+        }
+    };
 };
