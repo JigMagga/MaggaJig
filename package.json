@@ -69,6 +69,7 @@
     },
     "dependencies": {
         "react": "^0.13.3",
-        "magga-mediator": "git://github.com/JigMagga/MaggaMediator"
+        "magga-mediator": "git://github.com/JigMagga/MaggaMediator",
+        "magga": "git://github.com/JigMagga/Magga"
     }
 }
