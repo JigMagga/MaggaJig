@@ -4,12 +4,14 @@
 
 var React = require("react");
 
-function ReactView(reactComponent){
-    this.reactComponent = reactComponent;
+function ReactView(defaults){
+    this.defaults = defaults;
+    this.reactComponent = defaults.view.reactComponent;
+    this.init = defaults.view.init;
 }
 
 ReactView.prototype.render = function(data){
-    this.reactComponent.init(data);
+    return this.init(data);
 };
 
 
@@ -21,9 +23,12 @@ module.exports = {
         //this.reactComponent = require('./react-test');
         // REACT COMPONENT FOR example/client/reactChat.js
         // this.reactComponent = require('./../react/reactChat');
-        jig.plugins[pluginName] = new ReactView(jig.defaults.view);
+        jig.plugins[pluginName] = new ReactView(jig.defaults);
     },
     create: function(reactView){
-        return React.createClass(reactView);
+        return {
+            init: reactView.init,
+            reactComponent: React.createClass(reactView)
+        }
     }
 };
