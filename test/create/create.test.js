@@ -60,15 +60,11 @@ describe('jig create test', function () {
     });
 
     it('should call setup and init', function () {
-        var setupFn = sinon.spy();
         var initFn = sinon.spy();
         var MyJig = Jig.create({
-            setup: setupFn,
             init: initFn
         });
         var testInstance = new MyJig();
-
-        chai.expect(setupFn.called).to.be.true;
         chai.expect(initFn.called).to.be.true;
     });
 
@@ -114,10 +110,57 @@ describe('jig create test', function () {
         // console.log();
         assert.equal(new Test.Namespace().test, 'prototype init');
     });
+    it('should call beforeCreate and afterCreate hooks of plugin', function () {
+        var plugin = {
+                beforeCreate: sinon.spy(),
+                afterCreate: sinon.spy()
+            },
+            JigConstructor = Jig.create({
+                    plugins: {
+                        plugin: plugin
+                    }
+                },
+                {});
+        chai.expect(plugin.beforeCreate.called).to.be.true;
+        chai.expect(plugin.afterCreate.called).to.be.true;
+    });
     it('should call beforeInit and afterInit hooks of plugin', function () {
-        var jig = Jig.create({
+        var plugin = {
+                beforeInit: sinon.spy(),
+                afterInit: sinon.spy()
+            },
+            init = sinon.spy(),
+            JigConstructor = Jig.create({
+                plugins: {
+                    plugin: plugin
+                },
+                init: init
+            }),
+            jigInstance;
+        jigInstance = new JigConstructor();
+        chai.expect(plugin.beforeInit.called).to.be.true;
+        chai.expect(plugin.afterInit.called).to.be.true;
+        chai.expect(init.called).to.be.true;
+    });
 
-        })
-
+    it('should not call init if defaults.init = false', function () {
+        var plugin = {
+                beforeInit: sinon.spy(),
+                afterInit: sinon.spy()
+            },
+            init = sinon.spy(),
+            JigConstructor = Jig.create({
+                plugins: {
+                    plugin: plugin
+                },
+                init: init
+            }),
+            jigInstance;
+        jigInstance = new JigConstructor({
+            init: false
+        });
+        chai.expect(plugin.beforeInit.called).to.be.true;
+        chai.expect(plugin.afterInit.called).to.be.true;
+        chai.expect(init.called).to.be.false;
     });
 });

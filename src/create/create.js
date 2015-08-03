@@ -1,110 +1,3 @@
-
-
-/**
- * Creates a namespace for a jig with statics as static methods,
- * and proto as prototype methods.
- * @param  {string} namespace - name of the existing/or to be created namespace.
- * @param  {object} statics - object with static methods
- * @param  {object} proto - object with prototype functions.
- * @return {function} jig   - jig prototype
- * Arguments can be ("namespace", {}, {},),
- *              or ("namespace", {}) -> Object is proto
- *              or ({}) -> proto
- *              or ({},{}) -> statics and proto.
- *    "namespace" can be a concatenation of strings (deep namespace)
- **/
-
-
-module.exports = function (namespace, statics, prototype) {
-    var ref, jigConstructor;
-
-    // prepare arguments
-    if (typeof prototype === 'undefined') {
-        if (typeof namespace === 'string') {
-            // ("namespace", {}) -> Object is proto
-            prototype = statics;
-            statics = {};
-        }
-        else {
-            if (typeof statics === 'undefined') {
-                // ({}) -> proto
-                prototype = namespace;
-                statics = {};
-                namespace = null;
-            }
-            else {
-                // ({},{}) -> statics and proto.
-                prototype = statics;
-                statics = namespace;
-                namespace = null;
-            }
-        }
-    }
-
-    // constructor
-    jigConstructor = function (runtimeInstance) {
-        var self = this;
-
-        jigConstructor._super.constructor.call(self, runtimeInstance);
-
-        // taking  and extending "defaults" from prototype and statics
-        self.defaults = extend(true, {}, statics.defaults,self.defaults, runtimeInstance);
-        // getting plugins from statics
-        self.plugins = extend({}, self.plugins, statics.plugins);
-
-        self.plugin('beforeInit');
-
-        if (typeof self.setup === 'function') {
-            // NOTE Jaroslav: I find this confusing.
-            if (this.setup() === false) {
-                return;
-            }
-        }
-
-        if (typeof self.init === 'function') {
-            self.init();
-        }
-
-        self.plugin('afterInit');
-        return self;
-    };
-
-    // move all properties of parent constructor to child constructor
-    mixin(jigConstructor, this);
-    extend(jigConstructor, statics);
-
-    jigConstructor.plugin("beforeCreate");
-
-    // add inheritance for proper prototype chain.
-    inherits(jigConstructor,this);
-    extend(true, jigConstructor.prototype, prototype);
-
-    // namespace
-    if (namespace) {
-        ref = global || window;
-        // build a reference on jig constructor if 'some.nested.namespace' provided then
-        // build object some.nested.namespace if it partially exist then reuse it
-        namespace.split('.').reduce(function( prev, item ){
-            if (!prev[item]) {
-                prev[item] = {};
-            }
-            ref = prev;
-            name = item;
-            return prev[item];
-        }, ref);
-        ref[name] = jigConstructor;
-    }
-
-    if (typeof jigConstructor.init === 'function') {
-        jigConstructor.init();
-    }
-
-    jigConstructor.plugin("afterCreate");
-
-    return jigConstructor;
-};
-
-
 /*
  * Taken and adopted from jQuery.extend function
  *
@@ -208,3 +101,102 @@ function mixin(dst, src){
         }
     }
 }
+
+/**
+ * Creates a namespace for a jig with statics as static methods,
+ * and proto as prototype methods.
+ * @param  {string} namespace - name of the existing/or to be created namespace.
+ * @param  {object} statics - object with static methods
+ * @param  {object} proto - object with prototype functions.
+ * @return {function} jig   - jig prototype
+ * Arguments can be ("namespace", {}, {},),
+ *              or ("namespace", {}) -> Object is proto
+ *              or ({}) -> proto
+ *              or ({},{}) -> statics and proto.
+ *    "namespace" can be a concatenation of strings (deep namespace)
+ **/
+
+
+module.exports = function (namespace, statics, prototype) {
+    var ref, jigConstructor;
+
+    // prepare arguments
+    if (typeof prototype === 'undefined') {
+        if (typeof namespace === 'string') {
+            // ("namespace", {}) -> Object is proto
+            prototype = statics;
+            statics = {};
+        }
+        else {
+            if (typeof statics === 'undefined') {
+                // ({}) -> proto
+                prototype = namespace;
+                statics = {};
+                namespace = null;
+            }
+            else {
+                // ({},{}) -> statics and proto.
+                prototype = statics;
+                statics = namespace;
+                namespace = null;
+            }
+        }
+    }
+
+    // constructor
+    jigConstructor = function (runtimeInstance) {
+        var self = this;
+
+        jigConstructor._super.constructor.call(self, runtimeInstance);
+
+        // taking  and extending "defaults" from prototype and statics
+        self.defaults = extend(true, {}, statics.defaults,self.defaults, runtimeInstance);
+        // getting plugins from statics
+        self.plugins = extend({}, self.plugins, statics.plugins);
+
+        self.plugin('beforeInit');
+
+        // by default we initialize Jig
+        if ((self.defaults.init !== false) && (typeof self.init === 'function')) {
+            self.init();
+        }
+        self.plugin('afterInit');
+        return self;
+    };
+
+    // move all properties of parent constructor to child constructor
+    mixin(jigConstructor, this);
+    extend(jigConstructor, statics);
+
+    jigConstructor.plugin("beforeCreate");
+
+    // add inheritance for proper prototype chain.
+    inherits(jigConstructor,this);
+    extend(true, jigConstructor.prototype, prototype);
+
+    // namespace
+    if (namespace) {
+        ref = global || window;
+        // build a reference on jig constructor if 'some.nested.namespace' provided then
+        // build object some.nested.namespace if it partially exist then reuse it
+        namespace.split('.').reduce(function( prev, item ){
+            if (!prev[item]) {
+                prev[item] = {};
+            }
+            ref = prev;
+            name = item;
+            return prev[item];
+        }, ref);
+        ref[name] = jigConstructor;
+    }
+
+    if (typeof jigConstructor.init === 'function') {
+        jigConstructor.init();
+    }
+
+    jigConstructor.plugin("afterCreate");
+
+    return jigConstructor;
+};
+
+
