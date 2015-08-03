@@ -31,7 +31,7 @@ describe.skip('ReactView Layer:', function () {
                 })
             },
             plugins: {
-                view: require('./../../plugins/react')
+                view: require('./../../plugins/react/index.js')
             }
         }, {
             init: function () {

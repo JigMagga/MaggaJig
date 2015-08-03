@@ -65,7 +65,7 @@ describe('jig create test', function () {
         var MyJig = Jig.create({
             setup: setupFn,
             init: initFn
-        }, {});
+        });
         var testInstance = new MyJig();
 
         chai.expect(setupFn.called).to.be.true;
@@ -108,10 +108,16 @@ describe('jig create test', function () {
             }
         });
         // console.log();
-        assert.equal(new Test.Namespace.init().test, 'static init');
+        assert.equal(Test.Namespace.test, 'static init');
         // Instantiate, next init should be prototype init
-        var myInstance = new Test.Namespace();
+//        var myInstance = new Test.Namespace();
         // console.log();
-        assert.equal(new myInstance.init().test, 'prototype init');
+        assert.equal(new Test.Namespace().test, 'prototype init');
+    });
+    it('should call beforeInit and afterInit hooks of plugin', function () {
+        var jig = Jig.create({
+
+        })
+
     });
 });
