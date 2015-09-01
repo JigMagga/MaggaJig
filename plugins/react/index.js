@@ -6,17 +6,17 @@ var React = require("react");
 
 function ReactView(defaults){
     this.defaults = defaults;
-    this.reactComponent = defaults.view.reactComponent;
-    this.init = defaults.view.init;
+    this.reactComponent = defaults.view;
 }
 
 ReactView.prototype.render = function(data){
-//    return this.init(data);
     var self = this;
-    return React.render(
+    this.reactElement = React.render(
         React.createElement(self.reactComponent, {}),
-        document.querySelector(self.defaults.element)
+        document.querySelector(self.defaults.element),
+        self.defaults.afterRender
     );
+    return this.reactElement;
 };
 
 
@@ -29,11 +29,5 @@ module.exports = {
         // REACT COMPONENT FOR example/client/reactChat.js
         // this.reactComponent = require('./../react/reactChat');
         jig.plugins[pluginName] = new ReactView(jig.defaults);
-    },
-    create: function(reactView){
-        return {
-            init: reactView.init,
-            reactComponent: React.createClass(reactView)
-        }
     }
 };
