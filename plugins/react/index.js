@@ -11,7 +11,12 @@ function ReactView(defaults){
 }
 
 ReactView.prototype.render = function(data){
-    return this.init(data);
+//    return this.init(data);
+    var self = this;
+    return React.render(
+        React.createElement(self.reactComponent, {}),
+        document.querySelector(self.defaults.element)
+    );
 };
 
 
