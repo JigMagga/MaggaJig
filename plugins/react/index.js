@@ -12,7 +12,7 @@ function ReactView(defaults){
 ReactView.prototype.render = function(data){
     var self = this;
     this.reactElement = React.render(
-        React.createElement(self.reactComponent, {}),
+        React.createElement(self.reactComponent, data),
         document.querySelector(self.defaults.element),
         self.defaults.afterRender
     );
